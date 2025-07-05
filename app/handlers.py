@@ -83,7 +83,7 @@ async def homework_done_callbacktask(callback: CallbackQuery):
 # start
 @router.message(Command("menu"))
 async def start(message: Message):
-    await message.answer("Оберайте марафон чи курс", reply_markup=kb.main)
+    await message.answer("Обирайте марафон чи курс", reply_markup=kb.main)
 
 
 @router.message(F.text == "Марафони")
