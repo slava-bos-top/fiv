@@ -87,6 +87,7 @@ async def register_yornum(message: Message, state: FSMContext):
     cred_json_str = Config.GOOGLE_CREDENTIALS
 
     cred_dict = json.loads(cred_json_str)
+    cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
 
     creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
     client = gspread.authorize(creds)
@@ -198,9 +199,24 @@ async def register_city(message: Message, state: FSMContext):
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
+    # creds = ServiceAccountCredentials.from_json_keyfile_name("cred.json", scope)
     cred_json_str = Config.GOOGLE_CREDENTIALS
 
     cred_dict = json.loads(cred_json_str)
+    cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
+    client = gspread.authorize(creds)
+    spreadsheet = client.open_by_url(
+        "https://docs.google.com/spreadsheets/d/17lcrlxUhcervwQTOctLZkdvBVpAwyuWu7DQQ3d_oVSQ/edit?usp=sharing"
+    )
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    cred_json_str = Config.GOOGLE_CREDENTIALS
+
+    cred_dict = json.loads(cred_json_str)
+    cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
 
     creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
     client = gspread.authorize(creds)
