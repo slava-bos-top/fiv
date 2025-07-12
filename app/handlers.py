@@ -98,7 +98,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
-    cred_json_str = os.getenv("GOOGLE_CREDENTIALS")
+    cred_json_str = Config.GOOGLE_CREDENTIALS
 
     cred_dict = json.loads(cred_json_str)
 
