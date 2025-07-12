@@ -103,6 +103,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
     cred_json_str = Config.GOOGLE_CREDENTIALS
 
     cred_dict = json.loads(cred_json_str)
+    cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
 
     creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
     client = gspread.authorize(creds)
