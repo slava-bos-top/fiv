@@ -5,7 +5,7 @@
       "week_0": {
         "index": "0",
         "tesks_0": {
-            "text": "День 1: Сила Всесвітнього тяжіння. Невагомість",
+            "text": "Урок 1: Сила Всесвітнього тяжіння. Невагомість",
             "image": "app/media/marafons/Physical/week1/lesson1/day1Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=99uKtW3bvRQ",
@@ -60,7 +60,7 @@
             }
         },
         "tesks_1": {
-            "text": "День 2: Вільне падіння. Прискорення вільного падіння",
+            "text": "Урок 2: Вільне падіння. Прискорення вільного падіння",
             "image": "app/media/marafons/Physical/week1/lesson2/day2Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=idZ90Tou7O4",
@@ -114,7 +114,7 @@
             }
         },
         "tesks_2": {
-            "text": "День 3. Центр мас",
+            "text": "Урок 3. Центр мас",
             "image": "app/media/marafons/Physical/week1/lesson3/day3Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=WiAGvqZfK9I",
@@ -168,7 +168,7 @@
             }
         },
         "tesks_3": {
-            "text": "День 4. Прості механізми",
+            "text": "Урок 4. Прості механізми",
             "image": "app/media/marafons/Physical/week1/lesson4/day4Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=fmen_a-m7qQ",
@@ -222,7 +222,7 @@
             }
         },
         "tesks_4": {
-            "text": "День 5. Пружність",
+            "text": "Урок 5. Пружність",
             "image": "app/media/marafons/Physical/week1/lesson5/day5Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=PZl-PI6_n6w",
@@ -276,7 +276,7 @@
             }
         },
         "tesks_5": {
-            "text": "День 6. Тертя",
+            "text": "Урок 6. Тертя",
             "image": "app/media/marafons/Physical/week1/lesson6/day6Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=1XoGfkWIG3o",
@@ -331,7 +331,7 @@
             }
         },
         "tesks_6": {
-            "text": "День 7. Додаткове відео \"Чому небо блакитне?\"",
+            "text": "Урок 7. Додаткове відео \"Чому небо блакитне?\"",
             "image": "app/media/marafons/Physical/week1/lesson7/day7Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=j71hohJjn2g",
@@ -351,7 +351,7 @@
       "week_1": {
         "index": "1",
         "tesks_0": {
-            "text": "День 1. Температура",
+            "text": "Урок 1. Температура",
             "image": "app/media/marafons/Physical/week2/lesson1/day1Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=LA0NRWsTH5g",
@@ -417,7 +417,7 @@
             }
         },
         "tesks_1": {
-            "text": "День 2. Енергія",
+            "text": "Урок 2. Енергія",
             "image": "app/media/marafons/Physical/week2/lesson2/day2Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=guLcP8LVZTE",
@@ -472,7 +472,7 @@
             }
         },
         "tesks_2": {
-            "text": "День 3. Двигуни",
+            "text": "Урок 3. Двигуни",
             "image": "app/media/marafons/Physical/week2/lesson3/day3Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=EjXz1fKYPt4",
@@ -526,7 +526,7 @@
             }
         },
         "tesks_3": {
-            "text": "День 4. Густина",
+            "text": "Урок 4. Густина",
             "image": "app/media/marafons/Physical/week2/lesson4/day4Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=UlJ-h3fsRLk",
@@ -580,7 +580,7 @@
             }
         },
         "tesks_4": {
-            "text": "День 5. Тиск",
+            "text": "Урок 5. Тиск",
             "image": "app/media/marafons/Physical/week2/lesson5/day5Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=BhdKoFpJVJo",
@@ -634,7 +634,7 @@
             }
         },
         "tesks_5": {
-            "text": "День 6. Горіння",
+            "text": "Урок 6. Горіння",
             "image": "app/media/marafons/Physical/week2/lesson6/day6Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=V6PAUOWhBN0&t=1&rand=123",
@@ -691,7 +691,7 @@
       "week_2": {
         "index": "2",
         "tesks_0": {
-            "text": "День 1. Електрика",
+            "text": "Урок 1. Електрика",
             "image": "app/media/marafons/Physical/week3/lesson1/day1Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=fjLvKzTM6WI",
@@ -745,7 +745,7 @@
             }
         },
         "tesks_1": {
-            "text": "День 2. Лампочка",
+            "text": "Урок 2. Лампочка",
             "image": "app/media/marafons/Physical/week3/lesson2/day2Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=H1K7J-Lg2RM",
@@ -799,7 +799,7 @@
             }
         },
         "tesks_2": {
-            "text": "День 3. Магніти",
+            "text": "Урок 3. Магніти",
             "image": "app/media/marafons/Physical/week3/lesson3/day3Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=IAC8COofMzc",
@@ -853,7 +853,7 @@
             }
         },
         "tesks_3": {
-            "text": "День 4. Оптика",
+            "text": "Урок 4. Оптика",
             "image": "app/media/marafons/Physical/week3/lesson4/day4Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=9ZPmQJrnp2k",
@@ -907,7 +907,7 @@
             }
         },
         "tesks_4": {
-            "text": "День 5. Зв'язок",
+            "text": "Урок 5. Зв'язок",
             "image": "app/media/marafons/Physical/week3/lesson5/day5Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=_TpzH7sdbfM",
@@ -961,7 +961,7 @@
             }
         },
         "tesks_5": {
-            "text": "День 6. Астрофізика",
+            "text": "Урок 6. Астрофізика",
             "image": "app/media/marafons/Physical/week3/lesson6/day6Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=iFgz79AA2r0",
@@ -1022,7 +1022,7 @@
       "week_0": {
         "index": "0",
         "tesks_0": {
-            "text": "День 1. Явища навколо нас",
+            "text": "Урок 1. Явища навколо нас",
             "image": "app/media/marafons/Chemistry/week1/lesson1/day1Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=RjCfeBc-nJ4",
@@ -1076,7 +1076,7 @@
             }
         },
         "tesks_1": {
-            "text": "День 2. Періодична система Менделєєва",
+            "text": "Урок 2. Періодична система Менделєєва",
             "image": "app/media/marafons/Chemistry/week1/lesson2/day2Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=R-WvVqoDBjQ",
@@ -1130,7 +1130,7 @@
             }
         },
         "tesks_2": {
-            "text": "День 3. Речовини та їхні властивості",
+            "text": "Урок 3. Речовини та їхні властивості",
             "image": "app/media/marafons/Chemistry/week1/lesson3/day3Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=TDSOLUNAWB4",
@@ -1184,7 +1184,7 @@
             }
         },
         "tesks_3": {
-            "text": "День 4. Атоми, молекули, йони. Маса",
+            "text": "Урок 4. Атоми, молекули, йони. Маса",
             "image": "app/media/marafons/Chemistry/week1/lesson4/day4Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=UcnxrqNLDx8",
@@ -1238,7 +1238,7 @@
             }
         },
         "tesks_4": {
-            "text": "День 5. Речовини (частина 2)",
+            "text": "Урок 5. Речовини (частина 2)",
             "image": "app/media/marafons/Chemistry/week1/lesson5/day5Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=pox1s457Qek",
@@ -1292,7 +1292,7 @@
             }
         },
         "tesks_5": {
-            "text": "День 6. Суміші та їхні властивості",
+            "text": "Урок 6. Суміші та їхні властивості",
             "image": "app/media/marafons/Chemistry/week1/lesson6/day6Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=YCzbbnwaTAQ",
@@ -1312,7 +1312,7 @@
       "week_1": {
         "index": "1",
         "tesks_0": {
-            "text": "День 1. Суміші (частина 2)",
+            "text": "Урок 1. Суміші (частина 2)",
             "image": "app/media/marafons/Chemistry/week2/lesson1/day1Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=Y_BUnqI9X6Q",
@@ -1366,7 +1366,7 @@
             }
         },
         "tesks_1": {
-            "text": "День 2. Прості та складні речовини",
+            "text": "Урок 2. Прості та складні речовини",
             "image": "app/media/marafons/Chemistry/week2/lesson2/day2Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=kFqfd5-rFO4",
@@ -1420,7 +1420,7 @@
             }
         },
         "tesks_2": {
-            "text": "День 3. Валентність. Формули речовин",
+            "text": "Урок 3. Валентність. Формули речовин",
             "image": "app/media/marafons/Chemistry/week2/lesson3/day3Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=sSEoNMwqqYQ",
@@ -1474,7 +1474,7 @@
             }
         },
         "tesks_3": {
-            "text": "День 4. Закон збереження маси",
+            "text": "Урок 4. Закон збереження маси",
             "image": "app/media/marafons/Chemistry/week2/lesson4/day4Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=6nseVnMz5Ac",
@@ -1528,7 +1528,7 @@
             }
         },
         "tesks_4": {
-            "text": "День 5. Органічні речовини",
+            "text": "Урок 5. Органічні речовини",
             "image": "app/media/marafons/Chemistry/week2/lesson5/day5Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=yO6WX2IGLiQ",
@@ -1582,7 +1582,7 @@
             }
         },
         "tesks_5": {
-            "text": "День 6. Експерименти",
+            "text": "Урок 6. Експерименти",
             "image": "app/media/marafons/Chemistry/week2/lesson6/day6Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=00u2E7FmMLM",
@@ -1602,7 +1602,7 @@
       "week_2": {
         "index": "2",
         "tesks_0": {
-            "text": "День 1. Оксиди (Неорганічні речовини)",
+            "text": "Урок 1. Оксиди (Неорганічні речовини)",
             "image": "app/media/marafons/Chemistry/week3/lesson1/day1Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=xjtuoiBtPi8",
@@ -1619,7 +1619,7 @@
             "test": {}
         },
         "tesks_1": {
-            "text": "День 2. Кислоти (Неорганічні речовини)",
+            "text": "Урок 2. Кислоти (Неорганічні речовини)",
             "image": "app/media/marafons/Chemistry/week3/lesson2/day2Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=pJrkiemy7Ac",
@@ -1673,7 +1673,7 @@
             }
         },
         "tesks_2": {
-            "text": "День 3. Основи. Індикатори",
+            "text": "Урок 3. Основи. Індикатори",
             "image": "app/media/marafons/Chemistry/week3/lesson3/day3Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=JesxqPrg9Dk",
@@ -1727,7 +1727,7 @@
             }
         },
         "tesks_3": {
-            "text": "День 4. Солі",
+            "text": "Урок 4. Солі",
             "image": "app/media/marafons/Chemistry/week3/lesson4/day4Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=4oN28yTS6NE",
@@ -1782,7 +1782,7 @@
             }
         },
         "tesks_4": {
-            "text": "День 5. Чому речовини мають різний колір?",
+            "text": "Урок 5. Чому речовини мають різний колір?",
             "image": "app/media/marafons/Chemistry/week3/lesson5/day5Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=xJZN6zZ0cSY",
@@ -1836,7 +1836,7 @@
             }
         },
         "tesks_5": {
-            "text": "День 6. Підсумок марафону з хімії",
+            "text": "Урок 6. Підсумок марафону з хімії",
             "image": "app/media/marafons/Chemistry/week3/lesson6/day6Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=lJ-HfmzZGPw",
@@ -1860,7 +1860,7 @@
       "week_0": {
         "index": "0",
         "tesks_0": {
-            "text": "День 1. Що таке креативність?",
+            "text": "Урок 1. Що таке креативність?",
             "image": "app/media/marafons/Creativity/week1/lesson1/day1Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=Tit5qZCbG_g",
@@ -1914,7 +1914,7 @@
             }
         },
         "tesks_1": {
-            "text": "День 2. Як шукати нові ідеї?",
+            "text": "Урок 2. Як шукати нові ідеї?",
             "image": "app/media/marafons/Creativity/week1/lesson2/day2Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=M8ypejuZAnE",
@@ -1969,7 +1969,7 @@
             }
         },
         "tesks_2": {
-            "text": "День 3. Чому потрібно фантазувати?",
+            "text": "Урок 3. Чому потрібно фантазувати?",
             "image": "app/media/marafons/Creativity/week1/lesson3/day3Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=kxdDSUppI4I",
@@ -2014,7 +2014,7 @@
             }
         },
         "tesks_3": {
-            "text": "День 4. Чи поєднуються креативність та розум?",
+            "text": "Урок 4. Чи поєднуються креативність та розум?",
             "image": "app/media/marafons/Creativity/week1/lesson4/day4Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=SdHULR5mV58",
@@ -2056,7 +2056,7 @@
             }
         },
         "tesks_4": {
-            "text": "День 5. Які риси мають креативні люди?",
+            "text": "Урок 5. Які риси мають креативні люди?",
             "image": "app/media/marafons/Creativity/week1/lesson5/day5Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=_NU02ekJkvI",
@@ -2086,7 +2086,7 @@
             }
         },
         "tesks_5": {
-            "text": "День 6. Фантазійний календар",
+            "text": "Урок 6. Фантазійний календар",
             "image": "app/media/marafons/Creativity/week1/lesson6/day6Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "0",
@@ -2103,7 +2103,7 @@
             "test": {}
         },
         "tesks_6": {
-            "text": "День 7. Основи дизайну. Ресурси",
+            "text": "Урок 7. Основи дизайну. Ресурси",
             "image": "app/media/marafons/Creativity/week1/lesson7/day7Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=SqftqQoP4Bo",
@@ -2123,7 +2123,7 @@
       "week_1": {
         "index": "1",
         "tesks_0": {
-            "text": "День 1. Що робити, якщо немає ідей?",
+            "text": "Урок 1. Що робити, якщо немає ідей?",
             "image": "app/media/marafons/Creativity/week2/lesson1/day1Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=ixw9SCM0D0o",
@@ -2178,7 +2178,7 @@
             }
         },
         "tesks_1": {
-            "text": "День 2. Мистецтво та творчість",
+            "text": "Урок 2. Мистецтво та творчість",
             "image": "app/media/marafons/Creativity/week2/lesson2/day2Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=s8c-xJx1mPc",
@@ -2232,7 +2232,7 @@
             }
         },
         "tesks_2": {
-            "text": "День 3. Музика та креативність",
+            "text": "Урок 3. Музика та креативність",
             "image": "app/media/marafons/Creativity/week2/lesson3/day3Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=DRhXl9NtEyc",
@@ -2276,7 +2276,7 @@
             }
         },
         "tesks_3": {
-            "text": "День 4. Як театр розвиває креативність?",
+            "text": "Урок 4. Як театр розвиває креативність?",
             "image": "app/media/marafons/Creativity/week2/lesson4/day4Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=upN5csj9xWg",
@@ -2333,7 +2333,7 @@
             }
         },
         "tesks_4": {
-            "text": "День 5. Креативність в інших видах мистецтва",
+            "text": "Урок 5. Креативність в інших видах мистецтва",
             "image": "app/media/marafons/Creativity/week2/lesson5/day5Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=JOsmK89X8nE",
@@ -2375,7 +2375,7 @@
             }
         },
         "tesks_5": {
-            "text": "День 6. Шукаємо натхнення навколо нас",
+            "text": "Урок 6. Шукаємо натхнення навколо нас",
             "image": "app/media/marafons/Creativity/week2/lesson6/day6Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "0",
@@ -2392,7 +2392,7 @@
             "test": {}
         },
         "tesks_6": {
-            "text": "День 7. Сучасний дизайн. Приклади",
+            "text": "Урок 7. Сучасний дизайн. Приклади",
             "image": "app/media/marafons/Creativity/week2/lesson7/day7Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=Xba7mvWmx4c",
@@ -2412,7 +2412,7 @@
       "week_2": {
         "index": "2",
         "tesks_0": {
-            "text": "День 1. Мрії та візуалізації",
+            "text": "Урок 1. Мрії та візуалізації",
             "image": "app/media/marafons/Creativity/week3/lesson1/day1Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=9Yik6alad40",
@@ -2454,7 +2454,7 @@
             }
         },
         "tesks_1": {
-            "text": "День 2. Цінності та креативність",
+            "text": "Урок 2. Цінності та креативність",
             "image": "app/media/marafons/Creativity/week3/lesson2/day2Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=WMstoJmvh0A",
@@ -2472,7 +2472,7 @@
             "test": {}
         },
         "tesks_2": {
-            "text": "День 3. Креативність як частина підприємництва",
+            "text": "Урок 3. Креативність як частина підприємництва",
             "image": "app/media/marafons/Creativity/week3/lesson3/day3Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=soaci2DBx28",
@@ -2489,7 +2489,7 @@
             "test": {}
         },
         "tesks_3": {
-            "text": "День 4. Командна робота у креативній сфері",
+            "text": "Урок 4. Командна робота у креативній сфері",
             "image": "app/media/marafons/Creativity/week3/lesson4/day4Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=loGaVO3-goM",
@@ -2507,7 +2507,7 @@
             "test": {}
         },
         "tesks_4": {
-            "text": "День 5. 10 кроків для створення креативних проектів",
+            "text": "Урок 5. 10 кроків для створення креативних проектів",
             "image": "app/media/marafons/Creativity/week3/lesson5/day5Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=ex0bMs1yBY4",
@@ -2531,7 +2531,7 @@
           "week_0": {
             "index": "0",
             "tesks_0": {
-                "text": "День 1. Вступ до програмування",
+                "text": "Урок 1. Вступ до програмування",
                 "image": "app/media/marafons/Prog/week1/lesson1/day1Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=yi397F2BA1A",
@@ -2549,7 +2549,7 @@
                 "test": {}
             },
             "tesks_1": {
-                "text": "День 2. Програмування життєвих ситуацій",
+                "text": "Урок 2. Програмування життєвих ситуацій",
                 "image": "app/media/marafons/Prog/week1/lesson2/day2Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=gu1f0RrPFzo",
@@ -2567,7 +2567,7 @@
                 "test": {}
             },
             "tesks_2": {
-                "text": "День 3. Структура програм",
+                "text": "Урок 3. Структура програм",
                 "image": "app/media/marafons/Prog/week1/lesson3/day3Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=Hvqt4PtnkPU",
@@ -2586,7 +2586,7 @@
                 "test": {}
             },
             "tesks_3": {
-                "text": "День 4. Старт програмування. Діалог",
+                "text": "Урок 4. Старт програмування. Діалог",
                 "image": "app/media/marafons/Prog/week1/lesson4/day4Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=BsL3mYamPYQ",
@@ -2604,7 +2604,7 @@
                 "test": {}
             },
             "tesks_4": {
-                "text": "День 5. Додаємо умови в код",
+                "text": "Урок 5. Додаємо умови в код",
                 "image": "app/media/marafons/Prog/week1/lesson5/day5Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=3RpSnzJrY6I",
@@ -2623,7 +2623,7 @@
                 "test": {}
             },
             "tesks_5": {
-                "text": "День 6. Мотивація",
+                "text": "Урок 6. Мотивація",
                 "image": "app/media/marafons/Prog/week1/lesson6/day6Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "0",
@@ -2644,7 +2644,7 @@
           "week_1": {
             "index": "1",
             "tesks_0": {
-                "text": "День 1. Основи С++. Арифметика",
+                "text": "Урок 1. Основи С++. Арифметика",
                 "image": "app/media/marafons/Prog/week2/lesson1/day1Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=y4Cms5sZMso",
@@ -2662,7 +2662,7 @@
                 "test": {}
             },
             "tesks_1": {
-                "text": "День 2. Умови в мові С++",
+                "text": "Урок 2. Умови в мові С++",
                 "image": "app/media/marafons/Prog/week2/lesson2/day2Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=HlcPNTR087w",
@@ -2680,7 +2680,7 @@
                 "test": {}
             },
             "tesks_2": {
-                "text": "День 3. Алгоритми у С++",
+                "text": "Урок 3. Алгоритми у С++",
                 "image": "app/media/marafons/Prog/week2/lesson3/day3Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=q3-Milh45Y0",
@@ -2698,7 +2698,7 @@
                 "test": {}
             },
             "tesks_3": {
-                "text": "День 4. Цикли у мові С++",
+                "text": "Урок 4. Цикли у мові С++",
                 "image": "app/media/marafons/Prog/week2/lesson4/day4Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=g8cDSVIkh2Y",
@@ -2716,7 +2716,7 @@
                 "test": {}
             },
             "tesks_4": {
-                "text": "День 5. Функції. Підключення бібліотек",
+                "text": "Урок 5. Функції. Підключення бібліотек",
                 "image": "app/media/marafons/Prog/week2/lesson5/day5Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=j6AMydkXGKg",
@@ -2732,12 +2732,12 @@
                 "addDz": "Завершальний тест другого тижня на 100%: https://forms.gle/pqpBuvabqiMghRZe9\n\nПотрібно виконати тест на 100%, використовуючи необмежену кількість спроб.",
                 "End": "0",
                 "addDzn": "А ось і розв'язки та пояснення завдань:\n\n1) задача для визначення п'ятниць 13. Це лише один з розв'язків:\nhttps://ideone.com/PWi1oY\n\n2) Нижче відеопояснення до завдання з функціями і також один з можливих варіантів розв'язку",
-                "addVid": "https://limewire.com/d/2ovcA#6yvan2cXNE",
+                "addVid": "https://www.youtube.com/watch?v=njBJMryXkAU",
                 "addVideo": "0",
                 "test": {}
             },
             "tesks_5": {
-                "text": "День 6. Мотивація",
+                "text": "Урок 6. Мотивація",
                 "image": "app/media/marafons/Prog/week2/lesson6/day6Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "0",
@@ -2757,7 +2757,7 @@
           "week_2": {
             "index": "2",
             "tesks_0": {
-                "text": "День 1. Основи мови Python",
+                "text": "Урок 1. Основи мови Python",
                 "image": "app/media/marafons/Prog/week3/lesson1/day1Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=EItFUZZ51Ug",
@@ -2775,7 +2775,7 @@
                 "test": {}
             },
             "tesks_1": {
-                "text": "День 2. Цикли у мові Python",
+                "text": "Урок 2. Цикли у мові Python",
                 "image": "app/media/marafons/Prog/week3/lesson2/day2Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=Fvz1wQUvzpo",
@@ -2793,7 +2793,7 @@
                 "test": {}
             },
             "tesks_2": {
-                "text": "День 3. Підключення бібліотек у мові Python",
+                "text": "Урок 3. Підключення бібліотек у мові Python",
                 "image": "app/media/marafons/Prog/week3/lesson3/day3Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=BYOYO3Gsg2U",
@@ -2811,7 +2811,7 @@
                 "test": {}
             },
             "tesks_3": {
-                "text": "День 4. Рядки у мові Python",
+                "text": "Урок 4. Рядки у мові Python",
                 "image": "app/media/marafons/Prog/week3/lesson4/day4Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=Witm5aQDeqU",
@@ -2829,7 +2829,7 @@
                 "test": {}
             },
             "tesks_4": {
-                "text": "День 5. Основи JavaScript (підготовка до інтенсиву)",
+                "text": "Урок 5. Основи JavaScript (підготовка до інтенсиву)",
                 "image": "app/media/marafons/Prog/week3/lesson5/day5Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=IQoN82nKrAM",
@@ -2847,7 +2847,7 @@
                 "test": {}
             },
             "tesks_5": {
-                "text": "День 6. Інтенсив JavaScript",
+                "text": "Урок 6. Інтенсив JavaScript",
                 "image": "app/media/marafons/Prog/week3/lesson6/day6Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=x6sH3AnhhB4",
@@ -2871,7 +2871,7 @@
           "week_0": {
             "index": "0",
             "tesks_0": {
-                "text": "День 1. Іграшка з природних матеріалів",
+                "text": "Урок 1. Іграшка з природних матеріалів",
                 "image": "app/media/marafons/New/week1/lesson1/day1Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=VtHCS9vy82g",
@@ -2888,7 +2888,7 @@
                 "test": {}
             },
             "tesks_1": {
-                "text": "День 2. Іграшка у техніці канзаши",
+                "text": "Урок 2. Іграшка у техніці канзаши",
                 "image": "app/media/marafons/New/week1/lesson2/day2Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=XSYLNTlr6Aw",
@@ -2905,7 +2905,7 @@
                 "test": {}
             },
             "tesks_2": {
-                "text": "День 3. Новорічна іграшка з солоного тіста",
+                "text": "Урок 3. Новорічна іграшка з солоного тіста",
                 "image": "app/media/marafons/New/week1/lesson3/day3Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=WlMtMUHaYgU",
@@ -2922,7 +2922,7 @@
                 "test": {}
             },
             "tesks_3": {
-                "text": "День 4. Іграшка з фетру",
+                "text": "Урок 4. Іграшка з фетру",
                 "image": "app/media/marafons/New/week1/lesson4/day4Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=dTqRV3W2Fzw",
@@ -2940,7 +2940,7 @@
                 "test": {}
             },
             "tesks_4": {
-                "text": "День 5. Квілінг",
+                "text": "Урок 5. Квілінг",
                 "image": "app/media/marafons/New/week1/lesson5/day5Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "0",
@@ -2957,7 +2957,7 @@
                 "test": {}
             },
             "tesks_5": {
-                "text": "День 6. Три іграшки з фоамірану",
+                "text": "Урок 6. Три іграшки з фоамірану",
                 "image": "app/media/marafons/New/week1/lesson6/day6Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=tgXJiyPHqEk",
@@ -2974,7 +2974,7 @@
                 "test": {}
             },
             "tesks_6": {
-                "text": "День 7. Іграшка у техніці декупаж",
+                "text": "Урок 7. Іграшка у техніці декупаж",
                 "image": "app/media/marafons/New/week1/lesson7/day7Logo.jpg",
                 "textVideo": "#відео 👇",
                 "video_url": "https://www.youtube.com/watch?v=0ZcQNLo5POg",
