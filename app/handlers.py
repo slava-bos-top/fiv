@@ -18,6 +18,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 from app.storage import user_phone_map
 
+from config import Config
+
 with open("lessons.json", "r", encoding="utf-8") as f:
     LESSONS = json.load(f)
 
