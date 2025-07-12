@@ -11,104 +11,469 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.exceptions import TelegramBadRequest
 import json
 
-import app.keyboards as kb
+import sys
+
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
+from app.storage import user_phone_map
 
 with open("lessons.json", "r", encoding="utf-8") as f:
     LESSONS = json.load(f)
 
 router = Router()
 
-num = []
-way = []
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.context import FSMContext
+
+import app.keyboards as kb
+
+
+class UserProgress(StatesGroup):
+    ends = State()
+    go = State()
+    way = State()
+    kof = State()
+    les = State()
+    num = State()
+    explat = State()
+    imgCr = State()
+    marafonskey0 = State()
+    wek0 = State()
+    wek1 = State()
+    wek2 = State()
+    wek3 = State()
+    wek4 = State()
+    leson0 = State()
+    lesonForWeekSecond0 = State()
+    lesonForWeekThird0 = State()
+    leson1 = State()
+    lesonForWeekSecond1 = State()
+    lesonForWeekThird1 = State()
+    leson2 = State()
+    lesonForWeekSecond2 = State()
+    lesonForWeekThird2 = State()
+    leson3 = State()
+    lesonForWeekSecond3 = State()
+    lesonForWeekThird3 = State()
+    leson4 = State()
+
+
+# keyboard
+
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+
+main = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Курси")],
+        [KeyboardButton(text="Марафони")],
+        [KeyboardButton(text="Про нас")],
+    ],
+    resize_keyboard=True,
+)
+
+
+list_for_exsel_lesson = [[0, 7, 13], [19, 25, 31], [37, 44, 51], [56, 62, 68], [74]]
+
 marafons = [
     "Фізика",
     "Хімія",
     "Креативність",
     "Програмування",
     "Новорічний",
+    "Повернутися до тижнів",
 ]
 weeks = ["Тиждень 1", "Тиждень 2", "Тиждень 3"]
 lessons = ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5", "Урок 6", "Урок 7"]
 
-explat = []
-imgCr = []
-
 
 # callback
+@router.callback_query(F.data == "Done")
+async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer("Прогрес зберігається...")
+    data = await state.get_data()
+    les = data.get("les", [])
+
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    creds = ServiceAccountCredentials.from_json_keyfile_name("cred.json", scope)
+    client = gspread.authorize(creds)
+
+    sheet = client.open_by_url(
+        "https://docs.google.com/spreadsheets/d/17lcrlxUhcervwQTOctLZkdvBVpAwyuWu7DQQ3d_oVSQ/edit?usp=sharing"
+    ).sheet1
+
+    phone_column = sheet.col_values(5)
+    number_to_find = user_phone_map.get(callback.from_user.id)
+
+    try:
+        row_index = phone_column.index(number_to_find) + 1
+        row_values = sheet.row_values(row_index)
+
+        current_module = sys.modules[__name__]
+
+        if les[1] == 0:
+            leson_list_name = f"leson{les[0]}"
+            lesson_keyboard_name = f"lesson{les[0]}"
+        elif les[1] == 1:
+            leson_list_name = f"lesonForWeekSecond{les[0]}"
+            lesson_keyboard_name = f"lessonForWeekSecond{les[0]}"
+        else:
+            leson_list_name = f"lesonForWeekThird{les[0]}"
+            lesson_keyboard_name = f"lessonForWeekThird{les[0]}"
+
+        # leson_list = getattr(current_module, leson_list_name)
+        data = await state.get_data()
+        inf = data.get(leson_list_name, [])
+
+        if "✅" in inf[les[2]]:
+            # leson_list[les[2]] = f"{leson_list[les[2]]}"
+            await callback.message.answer("Цей урок вже було пройдено")
+        else:
+            # leson_list[les[2]] = f"{leson_list[les[2]]} ✅"
+            row_values[23 + list_for_exsel_lesson[les[0]][les[1]] + les[2]] = 1
+
+            sheet.update(f"A{row_index}", [row_values])
+
+            data = await state.get_data()
+            l = data.get(leson_list_name, [])
+            l[les[2]] = f"{l[les[2]]} ✅"
+            await state.update_data(**{leson_list_name: l})
+        data = await state.get_data()
+        leson_list = data.get(leson_list_name, [])
+
+        lessonKeyboard = ReplyKeyboardMarkup(
+            keyboard=[[KeyboardButton(text=lesson)] for lesson in leson_list],
+            resize_keyboard=True,
+        )
+
+        g = 1
+        for i in leson_list:
+            if i[-1:] == "✅":
+                g += 1
+        week_list = []
+        if int(len(leson_list)) == g:
+            wek_list_name = f"wek{les[0]}"
+            # week_keyboard_name = f"week{les[0]}"
+
+            data = await state.get_data()
+            inf = data.get(wek_list_name, [])
+
+            # week_list = getattr(current_module, wek_list_name)
+            if "✅" in inf[les[1]]:
+                # week_list[les[1]] = f"{week_list[les[1]]}"
+                pass
+            else:
+                # week_list[les[1]] = f"{week_list[les[1]]} ✅"
+                data = await state.get_data()
+                l = data.get(wek_list_name, [])
+                l[les[1]] = f"{l[les[1]]} ✅"
+                await state.update_data(**{wek_list_name: l})
+            data = await state.get_data()
+            week_list = data.get(wek_list_name, [])
+
+            # setattr(
+            #     current_module,
+            #     week_keyboard_name,
+            #     ReplyKeyboardMarkup(
+            #         keyboard=[[KeyboardButton(text=week)] for week in week_list],
+            #         resize_keyboard=True,
+            #     ),
+            # )
+            row_values[10 + les[0] * 3 + les[1]] = 1
+
+            sheet.update(f"A{row_index}", [row_values])
+        j = 1
+        if int(len(week_list)) == 0:
+            pass
+        else:
+            for i in week_list:
+                if i[-1:] == "✅":
+                    j += 1
+            if int(len(week_list)) == j:
+                mar = "marafonskey0"
+                # mar_keyboard_name = "marafonskey"
+
+                # mar_list = getattr(current_module, mar)
+
+                data = await state.get_data()
+                inf = data.get(mar, [])
+
+                if "✅" in inf[les[0]]:
+                    # mar_list[les[0]] = f"{mar_list[les[0]]}"
+                    pass
+                else:
+                    # mar_list[les[0]] = f"{mar_list[les[0]]} ✅"
+                    data = await state.get_data()
+                    l = data.get(mar, [])
+                    l[les[0]] = f"{l[les[0]]} ✅"
+                    await state.update_data(**{mar: l})
+
+                # setattr(
+                #     current_module,
+                #     mar_keyboard_name,
+                #     ReplyKeyboardMarkup(
+                #         keyboard=[[KeyboardButton(text=mar)] for mar in mar_list],
+                #         resize_keyboard=True,
+                #     ),
+                # )
+                row_values[5 + les[0]] = 1
+
+                sheet.update(f"A{row_index}", [row_values])
+        data = await state.get_data()
+        ends = data.get("ends", [])
+        if ends == 0:
+            text = (
+                "Молодець! Так тримати! Обирай наступний урок! Далі - ще цікавіше! 🙌"
+            )
+        elif ends == 1:
+            text = "Молодець! Так тримати! Обирай наступний тиждень! Далі - ще цікавіше! 🙌"
+        else:
+            text = "Молодець! Так тримати! Обирай інший марафон або курс! Далі - ще цікавіше! 🙌"
+        await callback.message.answer(text=text, reply_markup=lessonKeyboard)
+    except ValueError as v:
+        if "None is not in list" in str(v):
+            await callback.message.answer(
+                "Щоб отримати можливість зберігати прогрес, треба зареєструватись або увійти в акаунт",
+                reply_markup=kb.regestration,
+            )
+
+
 @router.callback_query(F.data == "Молодець! Так тримати!")
 async def homework_done_callback(callback: CallbackQuery):
     await callback.answer("Молодець! Так тримати! ✅", show_alert=True)
 
 
-@router.callback_query(F.data == "next")
-async def homework_done_callbacktask(callback: CallbackQuery):
-    keyboard_name = f"lesson{way[0]}"
-
-    selected_keyboard = getattr(kb, keyboard_name)
-
-    await callback.message.answer("Обери урок", reply_markup=selected_keyboard)
-
-
-@router.callback_query(F.data == "nextsecond")
-async def homework_done_callbacktasksec(callback: CallbackQuery):
-    keyboard_name = f"lessonForWeekSecond{way[0]}"
-
-    selected_keyboard = getattr(kb, keyboard_name)
-
-    await callback.message.answer("Обери урок", reply_markup=selected_keyboard)
-
-
-@router.callback_query(F.data == "nextthird")
-async def homework_done_callbacktasksec(callback: CallbackQuery):
-    keyboard_name = f"lessonForWeekThird{way[0]}"
-
-    selected_keyboard = getattr(kb, keyboard_name)
-
-    await callback.message.answer("Обери урок", reply_markup=selected_keyboard)
-
-
-@router.callback_query(F.data == "nextweek")
-async def homework_done_callbackweek(callback: CallbackQuery):
-    await callback.message.answer("Обирай тиждень!", reply_markup=kb.week)
-
-
 @router.callback_query(F.data == "explation")
-async def homework_done_callbacktask(callback: CallbackQuery):
+async def homework_done_callbacktask(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    explat = data.get("explat", [])
+    imgCr = data.get("imgCr", [])
     image = FSInputFile(imgCr[0])
     await callback.message.answer_photo(
         caption=f"{explat[0]}", photo=image, parse_mode="HTML"
     )
 
 
-# start
 @router.message(Command("menu"))
+async def start(message: Message, state: FSMContext):
+    data = await state.get_data()
+    go = data.get("go", [])
+    if go != True:
+        await state.update_data(
+            ends=0,
+            go=True,
+            kof=[0],
+            les=[],
+            num=[],
+            way=[],
+            explat=[],
+            imgCr=[],
+            marafonskey0=[
+                "Фізика",
+                "Хімія",
+                "Креативність",
+                "Програмування",
+                "Новорічний",
+                "Повернутися до головного меню",
+            ],
+            wek0=[
+                "Марафон з фізики. Тиждень 1",
+                "Марафон з фізики. Тиждень 2",
+                "Марафон з фізики. Тиждень 3",
+                "Повернутися до марафонів",
+            ],
+            wek1=[
+                "Марафон з хімії. Тиждень 1",
+                "Марафон з хімії. Тиждень 2",
+                "Марафон з хімії. Тиждень 3",
+                "Повернутися до марафонів",
+            ],
+            wek2=[
+                "Марафон з креативності. Тиждень 1",
+                "Марафон з креативності. Тиждень 2",
+                "Марафон з креативності. Тиждень 3",
+                "Повернутися до марафонів",
+            ],
+            wek3=[
+                "Марафон з IT. Тиждень 1",
+                "Марафон з IT. Тиждень 2",
+                "Марафон з IT. Тиждень 3",
+                "Повернутися до марафонів",
+            ],
+            wek4=["Наворічний марафон. Тиждень 1", "Повернутися до марафонів"],
+            leson0=[
+                "Урок 1. Сила Всесвітнього тяжніння. Невагомість",
+                "Урок 2. Вільне падіння. Прискорення вільного падіння",
+                "Урок 3. Центр мас",
+                "Урок 4. Прості механізми",
+                "Урок 5. Пружність",
+                "Урок 6. Тертя",
+                'Урок 7. Додаткове відео "Чому небо блакитне?"',
+                "Повернутися до тижнів",
+            ],
+            lesonForWeekSecond0=[
+                "Урок 1. Температура",
+                "Урок 2. Енергія",
+                "Урок 3. Двигуни",
+                "Урок 4. Густина",
+                "Урок 5. Тиск",
+                "Урок 6. Горіння",
+                "Повернутися до тижнів",
+            ],
+            lesonForWeekThird0=[
+                "Урок 1. Електрика",
+                "Урок 2. Лампочка",
+                "Урок 3. Магніти",
+                "Урок 4. Оптика",
+                "Урок 5. Зв'язок",
+                "Урок 6. Астрофізика",
+                "Повернутися до тижнів",
+            ],
+            leson1=[
+                "Урок 1. Явища навколо нас",
+                "Урок 2. Періодична система Менделєєва",
+                "Урок 3. Речовини та їхні властивості",
+                "Урок 4. Атоми, молекули, йони. Маса",
+                "Урок 5. Речовини (частина 2)",
+                "Урок 6. Суміші та їхні властивості",
+                "Повернутися до тижнів",
+            ],
+            lesonForWeekSecond1=[
+                "Урок 1. Суміші (частина 2)",
+                "Урок 2. Прості та складні речовини",
+                "Урок 3. Валентність. Формули речовин",
+                "Урок 4. Закон збереження маси",
+                "Урок 5. Органічні речовини",
+                "Урок 6. Експерименти",
+                "Повернутися до тижнів",
+            ],
+            lesonForWeekThird1=[
+                "Урок 1. Оксиди (Неорганічні речовини)",
+                "Урок 2. Кислоти (Неорганічні речовини)",
+                "Урок 3. Основи. Індикатори",
+                "Урок 4. Солі",
+                "Урок 5. Чому речовини мають різний колір?",
+                "Урок 6. Підсумок марафону з хімії",
+                "Повернутися до тижнів",
+            ],
+            leson2=[
+                "Урок 1. Що таке креативність?",
+                "Урок 2. Як шукати нові ідеї?",
+                "Урок 3. Чому потрібно фантазувати?",
+                "Урок 4. Чи поєднуються креативність та розум?",
+                "Урок 5. Які риси мають креативні люди?",
+                "Урок 6. Фантазійний календар",
+                "Урок 7. Основи дизайну. Ресурси",
+                "Повернутися до тижнів",
+            ],
+            lesonForWeekSecond2=[
+                "Урок 1. Що робити, якщо немає ідей?",
+                "Урок 2. Мистецтво та Творчість",
+                "Урок 3. Музика та креативність",
+                "Урок 4. Як театр розвиває креативність?",
+                "Урок 5. Креативність в інших видах мистецтва",
+                "Урок 6. Шукаємо натхнення навколо нас",
+                "Урок 7. Сучасний дизайн. Приклади",
+                "Повернутися до тижнів",
+            ],
+            lesonForWeekThird2=[
+                "Урок 1. Мрії та візуалізації",
+                "Урок 2. Цінності та креативність",
+                "Урок 3. Креативність як частина підприємництва",
+                "Урок 4. Командна робота у креативній сфері",
+                "Урок 5. 10 кроків для створення креативних проектів",
+                "Повернутися до тижнів",
+            ],
+            leson3=[
+                "Урок 1. Вступ до програмування",
+                "Урок 2. Програмування життєвих ситуацій",
+                "Урок 3. Структура програм",
+                "Урок 4. Старт програмування. Діалог",
+                "Урок 5. Додаємо умови в код",
+                "Урок 6. Мотивація",
+                "Повернутися до тижнів",
+            ],
+            lesonForWeekSecond3=[
+                "Урок 1. Основи С++. Арифметика",
+                "Урок 2. Умови в мові С++",
+                "Урок 3. Алгоритми у С++",
+                "Урок 4. Цикли у мові С++",
+                "Урок 5. Функції. Підключення бібліотек",
+                "Урок 6. Мотивація",
+                "Повернутися до тижнів",
+            ],
+            lesonForWeekThird3=[
+                "Урок 1. Основи мови Python",
+                "Урок 2. Цикли у мові Python",
+                "Урок 3. Підключення бібліотек у мові Python",
+                "Урок 4. Рядки у мові Python",
+                "Урок 5. Основи JavaScript (підготовка до інтенсиву)",
+                "Урок 6. Інтенсив JavaScript",
+                "Повернутися до тижнів",
+            ],
+            leson4=[
+                "Урок 1. Іграшка з природних матеріалів",
+                "Урок 2. Іграшка в техніці канзаши",
+                "Урок 3. Новорічна іграшка з солоного тіста",
+                "Урок 4. Іграшка з фетру",
+                "Урок 5. Квілінг",
+                "Урок 6. Три іграшки з фоамірану",
+                "Урок 7. Іграшка у техніці декупаж",
+                "Повернутися до тижнів",
+            ],
+        )
+    await message.answer("Обирайте марафон чи курс", reply_markup=main)
+
+
+@router.message(F.text == "Повернутися до головного меню")
 async def start(message: Message):
-    await message.answer("Обирайте марафон чи курс", reply_markup=kb.main)
+    await message.answer("Обирайте марафон чи курс", reply_markup=main)
 
 
-@router.message(F.text == "Марафони")
-async def Task(message: Message):
-    num.clear()
-    way.clear()
-    await message.answer("Обери марафон", reply_markup=kb.marafons)
+@router.message(F.text.in_(["Марафони", "Повернутися до марафонів"]))
+async def Task(message: Message, state: FSMContext):
+    await state.update_data(num=[])
+    await state.update_data(way=[])
+    data = await state.get_data()
+    marafonskey = data.get("marafonskey0", [])
+    lessonKeyboard = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text=lesson)] for lesson in marafonskey],
+        resize_keyboard=True,
+    )
+    await message.answer(
+        "Обирай, будь ласка, марафон, який тебе зацікавив", reply_markup=lessonKeyboard
+    )
 
 
 @router.message(
-    F.text.in_(
-        [
-            "Фізика",
-            "Хімія",
-            "Креативність",
-            "Програмування",
-            "Новорічний",
-        ]
+    F.text.startswith(
+        tuple(
+            [
+                "Фізика",
+                "Хімія",
+                "Креативність",
+                "Програмування",
+                "Новорічний",
+                "Повернутися до тижнів",
+            ]
+        )
     )
 )
-async def Marafons(message: Message):
+async def Marafons(message: Message, state: FSMContext):
+    if "✅" in message.text:
+        mes = message.text[:-2]
+    else:
+        mes = message.text
     for i in marafons:
-        if i == str(message.text):
+        if i == str(mes):
             index = marafons.index(i)
+    data = await state.get_data()
+    way = data.get("way", [])
     way.append(index)
+    await state.update_data(way=way)
     if index == 0:
         await message.answer(
             "<b>Привіт-привіт! </b>😄\nВітаємо тебе на Марафоні з фізики.\n\nУ цьому каналі ти отримуватимеш відеолекції та завдання від авторів марафону з освітнього центру FivOne. В кінці кожного відео буде домашнє завдання - експеримент з певної теми фізики. Також текстовий формат лекції для зручності.\n\nНаприкінці кожного уроку тут з'являтиметься опитування за матеріалом уроку ⚡️\n\nТи можеш переглядати відео та виконувати завдання у будь-який зручний для тебе час. \n\nОтже, <b>3-2-1 полеееетіли</b> 🚀",
@@ -159,43 +524,101 @@ async def Marafons(message: Message):
             "<b>Привіт-привіт! </b>😄\nВітаємо тебе на ІТ марафоні.\n\nУ цьому каналі ти отримуватимеш відеолекції та завдання від авторів марафону з освітнього центру FivOne. Марафон розрахований на три тижні. Неділя - вихідний😉\n\n<b>Важливо:</b>\n1. Жовті слайди у відеолекціях та презентаціях - це практичні або домашні завдання. Основне домашнє завдання з'являтиметься текстом тут в каналі.\n\n2. Наприкінці першого тижня ти отримаєш тест. Пройди його якнайкраще!\n\n3. Ти можеш переглядати відео та виконувати завдання у будь-який зручний для тебе час. Успіху!\n\n<b>Побігли-ии-иии! </b>🏃",
             parse_mode="HTML",
         )
-    else:
+    elif index == 4:
         image = FSInputFile("app/media/marafons/New/mater.jpg")
         await message.answer_photo(
             photo=image,
             caption="<b>Привіт-привіт! </b>😄\nВітаємо тебе на Новорічному марафоні 🎄\n\nУ цьому каналі протягом тижня ти отримуватимеш відеолекції та завдання від авторів марафону з освітнього центру FivOne. У відео будуть показані всі етапи: від приготування матеріалів до виготовлення іграшок.\n\nТакож у деякі дні тут з'являтимуться додаткові відео, в якому лекторка знайомитиме тебе з матеріалами та даватиме цікаві завдання 😉\n\nТи можеш переглядати відео та майструвати іграшки у будь-який зручний для тебе час.\n\nТакож ось файл з переліком всіх матеріалів (https://drive.google.com/file/d/1SAEblqDHBBaXE5SY68NNLal1vsMprbIa/view?usp=sharing), які тобі знадобляться.\n\n😁 Радимо виготовляти іграшки всією сім'єю або разом з друзями, бо так веселіше!\nДілись з друзями інформацією та запрошуй на марафон!\n\n<b>Це буде класний тиждень! </b>⛄️",
             parse_mode="HTML",
         )
-    if index < 4:
-        await message.answer("Обери тиждень", reply_markup=kb.week)
     else:
-        await message.answer("Обери тиждень", reply_markup=kb.week1)
+        pass
+    data = await state.get_data()
+    way = data.get("way", [])
+    if way[0] == 5:
+        data = await state.get_data()
+        les = data.get("les", [])
+        await state.update_data(way=[])
+        t = les[0]
+        await state.update_data(les=[])
+        data = await state.get_data()
+        way = data.get("way", [])
+        way.append(t)
+        await state.update_data(way=way)
+    else:
+        t = way[0]
+        await state.update_data(way=[])
+        data = await state.get_data()
+        way = data.get("way", [])
+        way.append(t)
+        await state.update_data(way=way)
+    await state.update_data(kof=[0])
+    data = await state.get_data()
+    f = f"wek{t}"
+    week = data.get(f, [])
+    lessonKeyboard = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text=lesson)] for lesson in week],
+        resize_keyboard=True,
+    )
+    await message.answer("Обери тиждень", reply_markup=lessonKeyboard)
 
 
-@router.message(F.text.in_(["Тиждень 1", "Тиждень 2", "Тиждень 3"]))
-async def Week(message: Message):
+@router.message(
+    F.text.startswith(
+        tuple(
+            [
+                "Марафон з фізики. Тиждень 1",
+                "Марафон з фізики. Тиждень 2",
+                "Марафон з фізики. Тиждень 3",
+                "Марафон з хімії. Тиждень 1",
+                "Марафон з хімії. Тиждень 2",
+                "Марафон з хімії. Тиждень 3",
+                "Марафон з креативності. Тиждень 1",
+                "Марафон з креативності. Тиждень 2",
+                "Марафон з креативності. Тиждень 3",
+                "Марафон з IT. Тиждень 1",
+                "Марафон з IT. Тиждень 2",
+                "Марафон з IT. Тиждень 3",
+                "Наворічний марафон. Тиждень 1",
+            ]
+        )
+    )
+)
+async def Week(message: Message, state: FSMContext):
+    if "✅" in message.text:
+        mes = message.text[:-2]
+    else:
+        mes = message.text
     for i in weeks:
-        if i == str(message.text):
+        if i == str(mes)[-9:]:
             index = weeks.index(i)
+    data = await state.get_data()
+    way = data.get("way", [])
     way.append(index)
+    await state.update_data(way=way)
+    current_module = sys.modules[__name__]
     if index == 0:
-        keyboard_name = f"lesson{way[0]}"
+        data = await state.get_data()
+        way = data.get("way", [])
+        keyboard_name = f"leson{way[0]}"
 
-        selected_keyboard = getattr(kb, keyboard_name)
-
-        await message.answer("Обери урок", reply_markup=selected_keyboard)
     elif index == 1:
-        keyboard_name = f"lessonForWeekSecond{way[0]}"
-
-        selected_keyboard = getattr(kb, keyboard_name)
-
-        await message.answer("Обери урок", reply_markup=selected_keyboard)
+        data = await state.get_data()
+        way = data.get("way", [])
+        keyboard_name = f"lesonForWeekSecond{way[0]}"
     else:
-        keyboard_name = f"lessonForWeekThird{way[0]}"
+        data = await state.get_data()
+        way = data.get("way", [])
+        keyboard_name = f"lesonForWeekThird{way[0]}"
 
-        selected_keyboard = getattr(kb, keyboard_name)
+    data = await state.get_data()
+    week = data.get(keyboard_name, [])
+    lessonKeyboard = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text=lesson)] for lesson in week],
+        resize_keyboard=True,
+    )
 
-        await message.answer("Обери урок", reply_markup=selected_keyboard)
+    await message.answer("Обери урок", reply_markup=lessonKeyboard)
 
 
 # tesks
@@ -215,22 +638,47 @@ async def Week(message: Message):
         )
     )
 )
-async def Lesson(message: Message):
+async def Lesson(message: Message, state: FSMContext):
+    data = await state.get_data()
+    kof = data.get("kof", [])
+    les = data.get("les", [])
+    way = data.get("way", [])
+    if kof[0] == 1:
+        await state.update_data(way=[])
+        data = await state.get_data()
+        way = data.get("way", [])
+        way.append(les[0])
+        way.append(les[1])
+        await state.update_data(way=way)
+        data = await state.get_data()
+        way = data.get("way", [])
     if len(way) != 0:
-        num.append(way[0])
-        num.append(way[1])
+        # num.append(way[0])
+        # num.append(way[1])
         for i in lessons:
             if i == str(message.text[:6]):
                 index = lessons.index(i)
-        num.append(index)
+        # num.append(index)
+        data = await state.get_data()
+        way = data.get("way", [])
+        await state.update_data(num=[way[0], way[1], index])
+    await state.update_data(les=[])
+    # data = await state.get_data()
+    # les = data.get("les", [])
+    # les.append(way[0])
+    # les.append(way[1])
+    # les.append(index)
+    data = await state.get_data()
+    way = data.get("way", [])
+    await state.update_data(les=[way[0], way[1], index])
+    data = await state.get_data()
+    num = data.get("num", [])
     lesson = LESSONS[int(num[0])]
     week = lesson[f"week_{int(num[1])}"]
     tesks = week[f"tesks_{int(num[2])}"]
     image = FSInputFile(tesks["image"])
     caption = f"<b>{tesks['text']}</b>"
-    await message.answer_photo(
-        photo=image, caption=caption, parse_mode="HTML", reply_markup=kb.main
-    )
+    await message.answer_photo(photo=image, caption=caption, parse_mode="HTML")
     textVideo = tesks["textVideo"]
     button_text = tesks["button_text"]
     video_url = tesks["video_url"]
@@ -272,7 +720,6 @@ async def Lesson(message: Message):
         await message.answer_document(
             document=video,
             parse_mode="HTML",
-            reply_markup=keyboard,
         )
     videoExp = tesks["videoExp"]
     imageexp = FSInputFile(tesks["imgExp"])
@@ -286,13 +733,11 @@ async def Lesson(message: Message):
                         caption=dz,
                         disable_notification=True,
                         parse_mode="HTML",
-                        reply_markup=keyboard,
                     )
                 else:
                     await message.answer(
                         dz,
                         parse_mode="HTML",
-                        reply_markup=keyboard,
                     )
             except TelegramBadRequest as e:
                 if "caption is too long" in str(e):
@@ -303,7 +748,6 @@ async def Lesson(message: Message):
                     await message.answer_video(
                         video,
                         disable_notification=True,
-                        reply_markup=keyboard,
                     )
                 else:
                     raise e
@@ -313,7 +757,6 @@ async def Lesson(message: Message):
                 text,
                 disable_web_page_preview=False,
                 parse_mode="HTML",
-                reply_markup=keyboard,
             )
     else:
         try:
@@ -321,7 +764,6 @@ async def Lesson(message: Message):
                 photo=imageexp,
                 caption=dz,
                 parse_mode="HTML",
-                reply_markup=keyboard,
             )
         except TelegramBadRequest as e:
             if "caption is too long" in str(e):
@@ -331,7 +773,6 @@ async def Lesson(message: Message):
                 )
                 await message.answer_photo(
                     photo=imageexp,
-                    reply_markup=keyboard,
                 )
             else:
                 raise e
@@ -341,13 +782,11 @@ async def Lesson(message: Message):
             document=video,
             caption='<b>Зроби додаткове завдання "Таблиця цінностей"</b>',
             parse_mode="HTML",
-            reply_markup=keyboard,
         )
     if "docDzn" in tesks:
         await message.answer(
             text=tesks["docDzn"],
             parse_mode="HTML",
-            reply_markup=keyboard,
         )
     k = 1
     for i in tesks["test"]:
@@ -374,10 +813,16 @@ async def Lesson(message: Message):
                 )
         if str(explanation) == "0":
             if "imgCr" in test:
-                explat.clear()
-                imgCr.clear()
+                await state.update_data(explat=[])
+                await state.update_data(imgCr=[])
+                data = await state.get_data()
+                explat = data.get("explat", [])
                 explat.append(test["dop"])
+                await state.update_data(explat=explat)
+                data = await state.get_data()
+                imgCr = data.get("imgCr", [])
                 imgCr.append(test["imgCr"])
+                await state.update_data(imgCr=imgCr)
                 keyboard = InlineKeyboardMarkup(
                     inline_keyboard=[
                         [
@@ -420,7 +865,6 @@ async def Lesson(message: Message):
             text,
             disable_web_page_preview=False,
             parse_mode="HTML",
-            reply_markup=keyboard,
         )
     if "addDzn" in tesks:
         text = tesks["addDzn"]
@@ -428,7 +872,6 @@ async def Lesson(message: Message):
             text,
             disable_web_page_preview=False,
             parse_mode="HTML",
-            reply_markup=keyboard,
         )
     if "addVid" in tesks:
         keyboard = InlineKeyboardMarkup(
@@ -441,11 +884,10 @@ async def Lesson(message: Message):
                 ]
             ]
         )
-        text = f"Відеопояснення до завдання другого тижня на мові С++"
+        text = f"Відеопояснення до завдання другого тижня на мові С++ https://www.youtube.com/watch?v=njBJMryXkAU"
         await message.answer(
             text=text,
             parse_mode="HTML",
-            reply_markup=keyboard,
         )
 
     text = "Перевір себе!"
@@ -463,6 +905,8 @@ async def Lesson(message: Message):
             parse_mode="HTML",
             disable_web_page_preview=False,
         )
+    data = await state.get_data()
+    way = data.get("way", [])
     if int(way[1]) == 0:
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
@@ -489,40 +933,36 @@ async def Lesson(message: Message):
                 ]
             ]
         )
+    await state.update_data(kof=[1])
     if tesks["End"] == "0":
-        num.clear()
-        text = "Натисни, щоб обрати інший урок з цього тижня 👇"
-        await message.answer(
-            text,
-            parse_mode="HTML",
-            reply_markup=keyboard,
-        )
+        await state.update_data(ends=0)
+
+        await state.update_data(num=[])
+        text = "Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
     elif tesks["End"] == "1":
-        num.clear()
+        await state.update_data(ends=1)
+        await state.update_data(num=[])
+        data = await state.get_data()
+        way = data.get("way", [])
         p = way[0]
-        way.clear()
+        await state.update_data(way=[])
+        data = await state.get_data()
+        way = data.get("way", [])
         way.append(p)
-        keyboard = InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    InlineKeyboardButton(
-                        text=f"Обрати інший тиждень", callback_data="nextweek"
-                    )
-                ]
-            ]
-        )
-        text = "Це був останій урок цього тижня! Продовжуй шлях!"
-        await message.answer(text)
-        text = "Натисни, щоб обрати інший тиждень 👇"
-        await message.answer(
-            text,
-            parse_mode="HTML",
-            reply_markup=keyboard,
-        )
+        await state.update_data(way=way)
+        text = "Це був останній урок цього тижня! Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
     else:
-        text = (
-            "Це був останій урок цього марафону! Можеш обрати інший марафон або курс."
-        )
-        await message.answer(text)
-        num.clear()
-        way.clear()
+        await state.update_data(ends=2)
+        text = "Це був останній урок цього марафону! Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
+        await state.update_data(num=[])
+        await state.update_data(way=[])
+    button_text = "Позначити як виконаний ✅"
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=f"{button_text}", callback_data="Done")]
+        ]
+    )
+    await message.answer(
+        text=text,
+        reply_markup=keyboard,
+    )
