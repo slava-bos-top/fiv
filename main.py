@@ -83,6 +83,7 @@ async def register_yornum(message: Message, state: FSMContext):
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
+    print("GOOGLE_CREDENTIALS:", os.getenv("GOOGLE_CREDENTIALS"))
     cred_json_str = os.getenv("GOOGLE_CREDENTIALS")
 
     cred_dict = json.loads(cred_json_str)
