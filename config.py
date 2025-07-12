@@ -15,6 +15,7 @@ class Config:
         load_dotenv()
 
         cls.BOT_TOKEN = os.getenv("BOT_TOKEN")
+        cls.GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
         if not cls.BOT_TOKEN:
             raise ValueError("❌ BOT_TOKEN is missing!")
 
