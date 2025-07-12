@@ -98,7 +98,11 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("cred.json", scope)
+    cred_json_str = os.getenv("GOOGLE_CREDENTIALS")
+
+    cred_dict = json.loads(cred_json_str)
+
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
     client = gspread.authorize(creds)
 
     sheet = client.open_by_url(
