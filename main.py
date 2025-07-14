@@ -44,6 +44,37 @@ class Register(StatesGroup):
     yourNumber = State()
 
 
+from flask import Flask, request, jsonify
+import hashlib
+import hmac
+import time
+import os
+
+app = Flask(__name__)
+TOKEN = Config.BOT_TOKEN
+
+
+@app.route("/api/verify-and-login", methods=["POST"])
+def verify_and_login():
+    data = request.get_json()
+
+    if not data or "hash" not in data:
+        return jsonify({"success": False, "message": "Invalid data"}), 400
+
+    received_hash = data.pop("hash")
+    auth_data = sorted([f"{k}={v}" for k, v in data.items()])
+    data_check_string = "\n".join(auth_data)
+    secret_key = hashlib.sha256(TOKEN.encode()).digest()
+    calculated_hash = hmac.new(
+        secret_key, data_check_string.encode(), hashlib.sha256
+    ).hexdigest()
+
+    if calculated_hash != received_hash:
+        return jsonify({"success": False, "message": "Invalid hash"}), 403
+
+    return jsonify({"success": True, "user": data})
+
+
 @router.message(Command("start"))
 async def register(message: Message, state: FSMContext):
     user_data = await state.get_data()
