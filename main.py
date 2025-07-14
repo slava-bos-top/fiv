@@ -58,6 +58,13 @@ import hmac
 from threading import Thread
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Або конкретно "https://fiv-one-site.vercel.app"
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def verify_telegram_auth(data: dict, bot_token: str) -> bool:
     auth_data = data.copy()
@@ -71,11 +78,11 @@ def verify_telegram_auth(data: dict, bot_token: str) -> bool:
 async def verify_user(request: Request):
     data = await request.json()
     if verify_telegram_auth(data, os.getenv("BOT_TOKEN")):
-        return {"success": True, "user": data}
         print("All GooD")
+        return {"success": True, "user": data}
     else:
-        return {"success": False, "message": "Invalid data"}
         print("False")
+        return {"success": False, "message": "Invalid data"}
 
 
 @router.message(Command("start"))
