@@ -30,6 +30,12 @@ import string
 
 from app.storage import user_phone_map
 
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+import hmac
+import hashlib
+import os
+
 Config.load()
 bot = Bot(token=Config.BOT_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
