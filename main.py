@@ -76,16 +76,6 @@ async def verify_user(request: Request):
     else:
         return {"success": False, "message": "Invalid data"}
         print("False")
-    import requests
-
-    requests.post(
-        "https://fiv-one-site.vercel.app/api/verify-and-check",
-        json={
-            "telegram_id": "12334",
-            "username": "12345",
-            "session_id": "1234567",
-        },
-    )
 
 
 @router.message(Command("start"))
