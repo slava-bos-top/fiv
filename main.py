@@ -41,7 +41,33 @@ class Register(StatesGroup):
     years = State()
     password = State()
     number = State()
-    yourNumber = State()
+    yourNumber = State
+
+
+from fastapi import FastAPI, Request
+import uvicorn
+import os
+import hashlib
+import hmac
+from threading import Thread
+
+app = FastAPI()
+
+def verify_telegram_auth(data: dict, bot_token: str) -> bool:
+    auth_data = data.copy()
+    hash_received = auth_data.pop('hash')
+    data_check_string = '\n'.join(f"{k}={auth_data[k]}" for k in sorted(auth_data))
+    secret_key = hashlib.sha256(bot_token.encode()).digest()
+    hmac_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
+    return hmac_hash == hash_received
+
+@app.post("/api/verify-and-login")
+async def verify_user(request: Request):
+    data = await request.json()
+    if verify_telegram_auth(data, os.getenv("BOT_TOKEN")):
+        return {"success": True, "user": data}
+    else:
+        return {"success": False, "message": "Invalid data"}
 
 
 @router.message(Command("start"))
@@ -61,6 +87,10 @@ async def register(message: Message, state: FSMContext):
         )
     else:
         await message.answer("Ви вже увійшли в акаунт")
+
+
+def start_api():
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
 # Увійти
@@ -259,11 +289,13 @@ async def register_city(message: Message, state: FSMContext):
 
 async def main():
     dp.include_router(router)
+    Thread(target=start_api).start()
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     try:
+        app.run(debug=True, port=5000)
         asyncio.run(main())
     except KeyboardInterrupt:
         print("Бот вимкнено!")
