@@ -295,7 +295,6 @@ async def main():
 
 if __name__ == "__main__":
     try:
-        app.run(debug=True, port=5000)
         asyncio.run(main())
     except KeyboardInterrupt:
         print("Бот вимкнено!")
