@@ -5,3 +5,5 @@ requests
 gspread
 oauth2client
 flask
+fastapi
+uvicorn
