@@ -83,6 +83,7 @@ def verify_telegram_auth(data: dict, bot_token: str) -> bool:
 @app.post("/api/verify-and-login")
 async def verify_user(request: Request):
     data = await request.json()
+    print(data['hash'])
     print("🔍 Received Telegram data:", data)
 
     bot_token = os.getenv("BOT_TOKEN")
