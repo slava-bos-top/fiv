@@ -44,34 +44,6 @@ class Register(StatesGroup):
     yourNumber = State()
 
 
-from flask import Flask, request, jsonify
-import hashlib
-import hmac
-import time
-import os
-
-app = Flask(__name__)
-TOKEN = Config.BOT_TOKEN
-
-
-def check_telegram_auth(data: dict, bot_token: str) -> bool:
-    auth_data = data.copy()
-    hash_received = auth_data.pop("hash")
-    data_check_string = "\n".join(f"{k}={auth_data[k]}" for k in sorted(auth_data))
-    secret_key = hashlib.sha256(bot_token.encode()).digest()
-    hmac_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
-    return hmac_hash == hash_received and time.time() - int(auth_data["auth_date"]) < 86400  # 1 день
-
-@app.route("/auth/telegram", methods=["POST"])
-def telegram_auth():
-    data = request.get_json()
-    if check_telegram_auth(data, TOKEN):
-        # Тут можна створити сесію, токен, або відповісти React-у
-        return jsonify({"status": "ok", "user": data}), 200
-    else:
-        return jsonify({"status": "error", "reason": "Invalid auth"}), 403
-
-
 @router.message(Command("start"))
 async def register(message: Message, state: FSMContext):
     user_data = await state.get_data()
