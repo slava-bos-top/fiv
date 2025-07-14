@@ -59,31 +59,48 @@ from threading import Thread
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Або конкретно "https://fiv-one-site.vercel.app"
+    allow_origins=["*"],  # Або вкажи свій домен напряму
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 def verify_telegram_auth(data: dict, bot_token: str) -> bool:
-    auth_data = data.copy()
-    hash_received = auth_data.pop('hash')
-    data_check_string = '\n'.join(f"{k}={auth_data[k]}" for k in sorted(auth_data))
-    secret_key = hashlib.sha256(bot_token.encode()).digest()
-    hmac_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
-    return hmac_hash == hash_received
+    try:
+        auth_data = data.copy()
+        hash_received = auth_data.pop("hash")
+        data_check_string = '\n'.join(f"{k}={auth_data[k]}" for k in sorted(auth_data))
+        secret_key = hashlib.sha256(bot_token.encode()).digest()
+        hmac_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
+        return hmac_hash == hash_received
+    except Exception as e:
+        print("❌ Error during hash verification:", e)
+        return False
 
 @app.post("/api/verify-and-login")
 async def verify_user(request: Request):
     data = await request.json()
-    if verify_telegram_auth(data, os.getenv("BOT_TOKEN")):
-        print("All GooD")
-        return {"success": True, "user": data}
+    print("🔍 Received Telegram data:", data)
+
+    bot_token = os.getenv("BOT_TOKEN")
+    if not bot_token:
+        return {"success": False, "message": "BOT_TOKEN is not set"}
+
+    if verify_telegram_auth(data, bot_token):
+        print("✅ Telegram user verified")
+        user = {
+            "id": data.get("id"),
+            "first_name": data.get("first_name"),
+            "username": data.get("username"),
+            "photo_url": data.get("photo_url"),
+        }
+        return {"success": True, "user": user}
     else:
-        print("False")
-        return {"success": False, "message": "Invalid data"}
+        print("❌ Telegram verification failed")
+        return {"success": False, "message": "Invalid Telegram data"}
 
 
 @router.message(Command("start"))
