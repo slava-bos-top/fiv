@@ -298,7 +298,7 @@ async def register_city(message: Message, state: FSMContext):
     year = data["years"]
     password = data["password"]
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
-    number = number.replace("(", "").replace(")", "").replace(" ", "")
+    number = number.replace("(", "").replace(")", "").replace(" ", "").replace("+", "")
     if number in phone_column:
         await message.answer(
             "Акаунт з таким номером вже зареєстрован. Увійди у свій акаунт",
