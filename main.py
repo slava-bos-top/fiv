@@ -92,7 +92,7 @@ async def verify_login(request: Request):
 
 @router.message(Command("start"))
 async def register(message: Message, state: FSMContext):
-    print("Helllllllllllllloooooooooo")
+    print("Helllllllllllllloooooo")
     user_data = await state.get_data()
     if user_data.get("enabled") != True:
         await bot.set_my_commands([], scope=BotCommandScopeDefault())
