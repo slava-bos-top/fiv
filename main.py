@@ -50,58 +50,44 @@ class Register(StatesGroup):
     yourNumber = State()
 
 
+dp = Dispatcher()
+dp.include_router(router)
+
 from fastapi import FastAPI, Request
-import uvicorn
-import os
+from fastapi.responses import JSONResponse
 import hashlib
 import hmac
-from threading import Thread
-from fastapi.middleware.cors import CORSMiddleware
+import time
+import os
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Або вкажи свій домен напряму
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+BOT_TOKEN = os.getenv("BOT_TOKEN", "твій_токен_тут")
+
 
 def verify_telegram_auth(data: dict, bot_token: str) -> bool:
-    try:
-        auth_data = data.copy()
-        hash_received = auth_data.pop("hash")
-        data_check_string = '\n'.join(f"{k}={auth_data[k]}" for k in sorted(auth_data))
-        secret_key = hashlib.sha256(bot_token.encode()).digest()
-        hmac_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
-        return hmac_hash == hash_received
-    except Exception as e:
-        print("❌ Error during hash verification:", e)
+    received_hash = data.pop("hash", None)
+    if not received_hash:
         return False
 
+    data_check_string = "\n".join([f"{k}={data[k]}" for k in sorted(data)])
+    secret_key = hashlib.sha256(bot_token.encode()).digest()
+    hmac_hash = hmac.new(
+        secret_key, data_check_string.encode(), hashlib.sha256
+    ).hexdigest()
+
+    return hmac_hash == received_hash and int(data["auth_date"]) > time.time() - 86400
+
+
 @app.post("/api/verify-and-login")
-async def verify_user(request: Request):
+async def verify_login(request: Request):
+    print("Hellllloooo!!!")
     data = await request.json()
-    print(data['hash'])
-    print("🔍 Received Telegram data:", data)
-
-    bot_token = os.getenv("BOT_TOKEN")
-    if not bot_token:
-        return {"success": False, "message": "BOT_TOKEN is not set"}
-
-    if verify_telegram_auth(data, bot_token):
-        print("✅ Telegram user verified")
-        user = {
-            "id": data.get("id"),
-            "first_name": data.get("first_name"),
-            "username": data.get("username"),
-            "photo_url": data.get("photo_url"),
-        }
-        return {"success": True, "user": user}
-    else:
-        print("❌ Telegram verification failed")
-        return {"success": False, "message": "Invalid Telegram data"}
+    if verify_telegram_auth(data.copy(), BOT_TOKEN):
+        return JSONResponse(content={"success": True, "user": data})
+    return JSONResponse(
+        content={"success": False, "message": "Invalid auth"}, status_code=401
+    )
 
 
 @router.message(Command("start"))
@@ -322,15 +308,7 @@ async def register_city(message: Message, state: FSMContext):
         await state.clear()
 
 
-async def main():
-    dp.include_router(router)
-    Thread(target=start_api).start()
-    await dp.start_polling(bot)
-
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("Бот вимкнено!")
+@app.on_event("startup")
+async def on_startup():
+    asyncio.create_task(dp.start_polling(bot))
 
