@@ -47,7 +47,7 @@ class Register(StatesGroup):
     years = State()
     password = State()
     number = State()
-    yourNumber = State
+    yourNumber = State()
 
 
 from fastapi import FastAPI, Request
