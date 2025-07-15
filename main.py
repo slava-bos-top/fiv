@@ -161,7 +161,7 @@ async def register_yornum(message: Message, state: FSMContext):
         "https://docs.google.com/spreadsheets/d/17lcrlxUhcervwQTOctLZkdvBVpAwyuWu7DQQ3d_oVSQ/edit?usp=sharing"
     ).sheet1
     phone_column = sheet.col_values(5)
-    number = number.replace("(", "").replace(")", "").replace(" ", "")
+    number = number.replace("(", "").replace(")", "").replace(" ", "").replace("+", "")
     if number in phone_column:
         user_phone_map[message.from_user.id] = number
         await message.answer("Вітаємо! Ви увійшли у свій акаунт!")
