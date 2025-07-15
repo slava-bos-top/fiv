@@ -92,6 +92,12 @@ async def verify_login(request: Request):
 
 @router.message(Command("start"))
 async def register(message: Message, state: FSMContext):
+    user_id = message.from_user.id  # ← 🎯 Ось він!
+    username = message.from_user.username
+    full_name = message.from_user.full_name
+
+    await message.answer(f"👋 Ваш userID: {user_id}")
+    print(f"User ID: {user_id}, Username: @{username}, Name: {full_name}")
     print("Helllllllllllllloooooo")
     user_data = await state.get_data()
     if user_data.get("enabled") != True:
