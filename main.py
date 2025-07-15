@@ -140,6 +140,7 @@ async def register_singin(message: Message, state: FSMContext):
 
 @router.message(StateFilter(Register.yourNumber), F.contact)
 async def register_yornum(message: Message, state: FSMContext):
+    print("✅ Отримано контакт:", message.contact)
     await state.update_data(number=message.contact)
     await message.answer("Вхід виконується...", reply_markup=ReplyKeyboardRemove())
     data = await state.get_data()
