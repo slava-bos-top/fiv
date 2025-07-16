@@ -5,7 +5,7 @@ import json
 from aiogram import Bot, Dispatcher, F
 from app.handlers import router
 import app.keyboards as kb
-from aiogram.filters import Command, StateFilter
+from aiogram.filters import Command, StateFilter, CommandStart
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import (
     Message,
