@@ -125,7 +125,7 @@ async def register_city(message: Message, state: FSMContext):
         phone = number
         user_phone_map[message.from_user.id] = phone
         conf = "Confirmed"
-        user_data = [conf, first_name[0], last_name[0], num]
+        user_data = [conf, first_name[0], last_name[0], num, message.from_user.id]
         for i in range(0, 99):
             user_data.append(0)
         sheet.append_row(user_data)
