@@ -32,7 +32,6 @@ from app.storage import user_phone_map
 Config.load()
 bot = Bot(token=Config.BOT_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
-dp = Dispatcher()
 
 
 class Register(StatesGroup):
