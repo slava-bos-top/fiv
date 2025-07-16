@@ -115,11 +115,6 @@ async def register_city(message: Message, state: FSMContext):
     phone_column = sheet.col_values(5)
 
     sheet = spreadsheet.sheet1
-    name = data["name"]
-    surname = data["secondName"]
-    year = data["years"]
-    password = data["password"]
-    hashed_password = hashlib.sha256(password.encode()).hexdigest()
     number = number.replace("(", "").replace(")", "").replace(" ", "").replace("+", "")
     data = await state.get_data()
     num = data.get("num", [])
