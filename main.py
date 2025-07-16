@@ -33,7 +33,6 @@ Config.load()
 bot = Bot(token=Config.BOT_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 dp = Dispatcher()
-dp.include_router(router)
 
 
 class Register(StatesGroup):
