@@ -78,7 +78,7 @@ async def start_handler(message: Message, state: FSMContext):
 @router.message(StateFilter(Register.numbers), F.contact)
 async def register_city(message: Message, state: FSMContext):
     await message.answer("Дані зберігаються...", reply_markup=ReplyKeyboardRemove())
-    await state.update_data(number=message.contact)
+    await state.update_data(numbers=message.contact)
     data = await state.get_data()
     number = list(data["numbers"])[0][1]
     scope = [
