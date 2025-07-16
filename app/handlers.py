@@ -247,9 +247,25 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
                 reply_markup=kb.regestration,
             )
 
-@router.callback_query(F.data == "toconfirmdata")
-async def homework_done_callback(callback: CallbackQuery):
-    await callback.answer("Вхід пітверджено!")
+@router.message(CommandStart(deep_link=True))
+async def start_handler(message: Message, command: CommandStart.CommandObject):
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+    deep_link_arg = command.args  # ← Це буде "phone_380501234567"
+
+    # 🔍 Наприклад, виймаємо номер:
+    if deep_link_arg and deep_link_arg.startswith("phone_"):
+        phone = deep_link_arg.replace("phone_", "")
+        print(f"📞 Phone: {phone}")
+        print(f"🧾 Chat ID: {chat_id}")
+
+        # Збережи цей зв'язок (chat_id ↔️ phone) у базу або Google Sheets
+
+        await message.answer(f"✅ Номер {phone} підтверджено!")
+    else:
+        await message.answer(
+            "👋 Вітаю! Надішліть /start phone_380501234567 щоб підтвердити."
+        )
 
 @router.callback_query(F.data == "Молодець! Так тримати!")
 async def homework_done_callback(callback: CallbackQuery):
