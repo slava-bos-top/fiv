@@ -248,24 +248,23 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             )
 
 @router.message(CommandStart(deep_link=True))
-async def start_handler(message: Message, command: CommandStart.CommandObject):
+async def start_handler(message: Message):
     chat_id = message.chat.id
     user_id = message.from_user.id
-    deep_link_arg = command.args  # ← Це буде "phone_380501234567"
+    text = message.text  # повний текст, наприклад "/start phone_380501234567"
 
-    # 🔍 Наприклад, виймаємо номер:
-    if deep_link_arg and deep_link_arg.startswith("phone_"):
-        phone = deep_link_arg.replace("phone_", "")
-        print(f"📞 Phone: {phone}")
-        print(f"🧾 Chat ID: {chat_id}")
+    # 🔍 Витягуємо аргумент після /start
+    if message.text.startswith("/start "):
+        param = message.text.split(" ", 1)[1]  # ← буде "phone_380501234567"
 
-        # Збережи цей зв'язок (chat_id ↔️ phone) у базу або Google Sheets
-
-        await message.answer(f"✅ Номер {phone} підтверджено!")
+        if param.startswith("phone_"):
+            phone = param.replace("phone_", "")
+            await message.answer(f"✅ Ваш номер {phone} підтверджено!")
+            print(f"Chat ID: {chat_id}, Phone: {phone}")
+        else:
+            await message.answer("❌ Невірний формат параметра.")
     else:
-        await message.answer(
-            "👋 Вітаю! Надішліть /start phone_380501234567 щоб підтвердити."
-        )
+        await message.answer("👋 Вітаю! Надішліть посилання з номером.")
 
 @router.callback_query(F.data == "Молодець! Так тримати!")
 async def homework_done_callback(callback: CallbackQuery):
