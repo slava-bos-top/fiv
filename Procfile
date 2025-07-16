@@ -1,1 +1,1 @@
-worker: python -m uvicorn main:app --reload 
+worker: python main.py
