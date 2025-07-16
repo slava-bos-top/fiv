@@ -43,26 +43,6 @@ class Register(StatesGroup):
     yourNumber = State()
 
 
-@router.message(Command("start"))
-async def register(message: Message, state: FSMContext):
-    print("Hello")
-    user_data = await state.get_data()
-    if user_data.get("enabled") != True:
-        await bot.set_my_commands([], scope=BotCommandScopeDefault())
-        await bot.set_chat_menu_button(
-            chat_id=message.chat.id, menu_button=MenuButtonDefault()
-        )
-        await message.answer(
-            "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело!",
-        )
-        await message.answer(
-            "Зареєструйся чи увійди у свій акаунт",
-            reply_markup=kb.regestration,
-        )
-    else:
-        await message.answer("Ви вже увійшли в акаунт")
-
-
 # Увійти
 @router.message(F.text == "Увійти в акаунт")
 async def register_singin(message: Message, state: FSMContext):
