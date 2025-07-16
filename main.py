@@ -1,6 +1,5 @@
 import asyncio
 import re
-import os
 import json
 
 from aiogram import Bot, Dispatcher, F
@@ -30,15 +29,11 @@ import string
 
 from app.storage import user_phone_map
 
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-import hmac
-import hashlib
-import os
-
 Config.load()
 bot = Bot(token=Config.BOT_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
+dp = Dispatcher()
+dp.include_router(router)
 
 
 class Register(StatesGroup):
@@ -50,55 +45,9 @@ class Register(StatesGroup):
     yourNumber = State()
 
 
-dp = Dispatcher()
-dp.include_router(router)
-
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-import hashlib
-import hmac
-import time
-import os
-
-app = FastAPI()
-
-BOT_TOKEN = os.getenv("BOT_TOKEN", "твій_токен_тут")
-
-
-def verify_telegram_auth(data: dict, bot_token: str) -> bool:
-    received_hash = data.pop("hash", None)
-    if not received_hash:
-        return False
-
-    data_check_string = "\n".join([f"{k}={data[k]}" for k in sorted(data)])
-    secret_key = hashlib.sha256(bot_token.encode()).digest()
-    hmac_hash = hmac.new(
-        secret_key, data_check_string.encode(), hashlib.sha256
-    ).hexdigest()
-
-    return hmac_hash == received_hash and int(data["auth_date"]) > time.time() - 86400
-
-
-@app.post("/api/verify-and-login")
-async def verify_login(request: Request):
-    print("Hellllloooo!!!")
-    data = await request.json()
-    if verify_telegram_auth(data.copy(), BOT_TOKEN):
-        return JSONResponse(content={"success": True, "user": data})
-    return JSONResponse(
-        content={"success": False, "message": "Invalid auth"}, status_code=401
-    )
-
-
 @router.message(Command("start"))
 async def register(message: Message, state: FSMContext):
-    user_id = message.from_user.id  # ← 🎯 Ось він!
-    username = message.from_user.username
-    full_name = message.from_user.full_name
-
-    await message.answer(f"👋 Ваш userID: {user_id}")
-    print(f"User ID: {user_id}, Username: @{username}, Name: {full_name}")
-    print("Helllllllllllllloooooo")
+    print("Hello")
     user_data = await state.get_data()
     if user_data.get("enabled") != True:
         await bot.set_my_commands([], scope=BotCommandScopeDefault())
@@ -116,10 +65,6 @@ async def register(message: Message, state: FSMContext):
         await message.answer("Ви вже увійшли в акаунт")
 
 
-def start_api():
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
 # Увійти
 @router.message(F.text == "Увійти в акаунт")
 async def register_singin(message: Message, state: FSMContext):
@@ -132,7 +77,6 @@ async def register_singin(message: Message, state: FSMContext):
 
 @router.message(StateFilter(Register.yourNumber), F.contact)
 async def register_yornum(message: Message, state: FSMContext):
-    print("✅ Отримано контакт:", message.contact)
     await state.update_data(number=message.contact)
     await message.answer("Вхід виконується...", reply_markup=ReplyKeyboardRemove())
     data = await state.get_data()
@@ -141,6 +85,7 @@ async def register_yornum(message: Message, state: FSMContext):
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
+    # creds = ServiceAccountCredentials.from_json_keyfile_name("cred.json", scope)
     cred_json_str = Config.GOOGLE_CREDENTIALS
 
     cred_dict = json.loads(cred_json_str)
@@ -153,7 +98,7 @@ async def register_yornum(message: Message, state: FSMContext):
         "https://docs.google.com/spreadsheets/d/17lcrlxUhcervwQTOctLZkdvBVpAwyuWu7DQQ3d_oVSQ/edit?usp=sharing"
     ).sheet1
     phone_column = sheet.col_values(5)
-    number = number.replace("(", "").replace(")", "").replace(" ", "").replace("+", "")
+    number = number.replace("(", "").replace(")", "").replace(" ", "")
     if number in phone_column:
         user_phone_map[message.from_user.id] = number
         await message.answer("Вітаємо! Ви увійшли у свій акаунт!")
@@ -266,16 +211,18 @@ async def register_city(message: Message, state: FSMContext):
     spreadsheet = client.open_by_url(
         "https://docs.google.com/spreadsheets/d/17lcrlxUhcervwQTOctLZkdvBVpAwyuWu7DQQ3d_oVSQ/edit?usp=sharing"
     )
+
     scope = [
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
+    # creds = ServiceAccountCredentials.from_json_keyfile_name("cred.json", scope)
     cred_json_str = Config.GOOGLE_CREDENTIALS
 
     cred_dict = json.loads(cred_json_str)
     cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
-
     creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
+
     client = gspread.authorize(creds)
 
     sheet = client.open_by_url(
@@ -289,7 +236,7 @@ async def register_city(message: Message, state: FSMContext):
     year = data["years"]
     password = data["password"]
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
-    number = number.replace("(", "").replace(")", "").replace(" ", "").replace("+", "")
+    number = number.replace("(", "").replace(")", "").replace(" ", "")
     if number in phone_column:
         await message.answer(
             "Акаунт з таким номером вже зареєстрован. Увійди у свій акаунт",
@@ -314,7 +261,15 @@ async def register_city(message: Message, state: FSMContext):
         await state.clear()
 
 
-@app.on_event("startup")
-async def on_startup():
-    asyncio.create_task(dp.start_polling(bot))
+async def main():
+    dp.include_router(router)
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Бот вимкнено!")
 
