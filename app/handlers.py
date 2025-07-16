@@ -247,29 +247,6 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
                 reply_markup=kb.regestration,
             )
 
-@router.message(CommandStart(deep_link=True))
-async def start_handler(message: Message):
-    chat_id = message.chat.id
-    user_id = message.from_user.id
-    text = message.text  # повний текст, наприклад "/start phone_380501234567"
-
-    # 🔍 Витягуємо аргумент після /start
-    if message.text.startswith("/start "):
-        param = message.text.split(" ", 1)[1]  # ← буде "phone_380501234567"
-
-        if param.startswith("phone_"):
-            phone = param.replace("phone_", "")
-            await message.answer(f"✅ Ваш номер {phone} підтверджено!")
-            print(f"Chat ID: {chat_id}, Phone: {phone}")
-        else:
-            await message.answer("❌ Невірний формат параметра.")
-    else:
-        await message.answer("👋 Вітаю! Надішліть посилання з номером.")
-
-@router.callback_query(F.data == "Молодець! Так тримати!")
-async def homework_done_callback(callback: CallbackQuery):
-    await callback.answer("Молодець! Так тримати! ✅", show_alert=True)
-
 
 @router.callback_query(F.data == "explation")
 async def homework_done_callbacktask(callback: CallbackQuery, state: FSMContext):
