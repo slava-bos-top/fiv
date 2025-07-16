@@ -249,7 +249,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "toconfirmdata")
 async def homework_done_callback(callback: CallbackQuery):
-    await callback.answer("Вхід пітверджено!", show_alert=True)
+    await callback.answer("Вхід пітверджено!")
 
 @router.callback_query(F.data == "Молодець! Так тримати!")
 async def homework_done_callback(callback: CallbackQuery):
