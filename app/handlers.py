@@ -268,27 +268,33 @@ async def homework_done_callbacktask(callback: CallbackQuery, state: FSMContext)
 
 
 @router.message(CommandStart(deep_link=True))
-async def start_handler(message: Message, state: FSMContext):
+async def start_handler(message: Message, state: FSMContext, command: CommandObject):
     chat_id = message.chat.id
     user = message.from_user
+
+    # Зберігаємо імʼя/прізвище
     await state.update_data(first_name=[user.first_name])
     await state.update_data(last_name=[user.last_name])
-    user_id = message.from_user.id
-    text = message.text
 
-    # 🔍 Витягуємо аргумент після /start
+    # Отримуємо deep link параметр
+    param = command.args  # Це буде 'confirm_380501234567' або None
+
     if param and param.startswith("confirm_"):
         phone = param.replace("confirm_", "")
         await state.set_state(UserProgress.numbers)
+        await state.update_data(num=[phone])
+
         await message.answer(
-            f"👋 Вітаю! Надішліть посилання з номером, для підтвердження номера.",
+            "👋 Вітаю! Надішліть посилання з номером, для підтвердження номера.",
             reply_markup=kb.get_number,
         )
-        await state.update_data(num=[phone])
-        print(f"Phone from deep link: {phone}")
+        print(f"✅ Deep link підтвердження: {phone}")
     else:
-        # Звичайна логіка /start без deep link
-        await message.answer("👋 Привіт! Це головне меню твого помічника 📚", reply_markup=kb.main_menu)
+        # Стандартна логіка /start без параметрів
+        await message.answer(
+            "👋 Привіт! Це головне меню твого помічника 📚",
+            reply_markup=kb.main_menu
+        )
 
 
 @router.message(StateFilter(UserProgress.numbers), F.contact)
