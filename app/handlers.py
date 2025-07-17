@@ -1,10 +1,11 @@
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.types import (
     Message,
     FSInputFile,
     InlineKeyboardMarkup,
     InlineKeyboardButton,
     CallbackQuery,
+    ReplyKeyboardRemove,
 )
 from aiogram import Router, F
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -18,8 +19,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 from app.storage import user_phone_map
 
-from config import Config
-
 with open("lessons.json", "r", encoding="utf-8") as f:
     LESSONS = json.load(f)
 
@@ -29,6 +28,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 
 import app.keyboards as kb
+from config import Config
 
 
 class UserProgress(StatesGroup):
@@ -59,9 +59,12 @@ class UserProgress(StatesGroup):
     lesonForWeekSecond3 = State()
     lesonForWeekThird3 = State()
     leson4 = State()
+    num = State()
+    first_name = State()
+    last_name = State()
+    numbers = State()
+    SignInSuper = State()
 
-
-# keyboard
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
@@ -100,11 +103,11 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
+    # creds = ServiceAccountCredentials.from_json_keyfile_name("cred.json", scope)
     cred_json_str = Config.GOOGLE_CREDENTIALS
 
     cred_dict = json.loads(cred_json_str)
     cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
-
     creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
     client = gspread.authorize(creds)
 
@@ -248,6 +251,11 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             )
 
 
+@router.callback_query(F.data == "Молодець! Так тримати!")
+async def homework_done_callback(callback: CallbackQuery):
+    await callback.answer("Молодець! Так тримати! ✅", show_alert=True)
+
+
 @router.callback_query(F.data == "explation")
 async def homework_done_callbacktask(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
@@ -257,6 +265,107 @@ async def homework_done_callbacktask(callback: CallbackQuery, state: FSMContext)
     await callback.message.answer_photo(
         caption=f"{explat[0]}", photo=image, parse_mode="HTML"
     )
+
+
+@router.message(CommandStart(deep_link=True))
+async def start_handler(message: Message, state: FSMContext):
+    await message.answer("Привіт!")
+
+
+@router.message(CommandStart(deep_link=True))
+async def start_handler(message: Message, state: FSMContext):
+    chat_id = message.chat.id
+    user = message.from_user
+    await state.update_data(first_name=[user.first_name])
+    await state.update_data(last_name=[user.last_name])
+    user_id = message.from_user.id
+    text = message.text
+
+    # 🔍 Витягуємо аргумент після /start
+    if message.text.startswith("/start "):
+        param = message.text.split(" ", 1)[1]  # ← буде "phone_380501234567"
+
+        if param.startswith("phone_"):
+            await state.set_state(UserProgress.numbers)
+            phone = param.replace("phone_", "")
+            await message.answer(
+                f"👋 Вітаю! Надішліть посилання з номером, для підтвердження номера.",
+                reply_markup=kb.get_number,
+            )
+            print(f"Chat ID: {chat_id}, Phone: {phone}")
+            await state.update_data(num=[phone])
+        else:
+            await message.answer("❌ Невірний формат параметра.")
+    else:
+        await message.answer("👋 Вітаю! Надішліть посилання з номером.")
+
+
+@router.message(StateFilter(UserProgress.numbers), F.contact)
+async def register_city(message: Message, state: FSMContext):
+    await message.answer("Дані зберігаються...", reply_markup=ReplyKeyboardRemove())
+    await state.update_data(numbers=message.contact)
+    data = await state.get_data()
+    number = list(data["numbers"])[0][1]
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    # creds = ServiceAccountCredentials.from_json_keyfile_name("cred.json", scope)
+    cred_json_str = Config.GOOGLE_CREDENTIALS
+
+    cred_dict = json.loads(cred_json_str)
+    cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
+    client = gspread.authorize(creds)
+    spreadsheet = client.open_by_url(
+        "https://docs.google.com/spreadsheets/d/17lcrlxUhcervwQTOctLZkdvBVpAwyuWu7DQQ3d_oVSQ/edit?usp=sharing"
+    )
+
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    # creds = ServiceAccountCredentials.from_json_keyfile_name("cred.json", scope)
+    cred_json_str = Config.GOOGLE_CREDENTIALS
+
+    cred_dict = json.loads(cred_json_str)
+    cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
+
+    client = gspread.authorize(creds)
+
+    sheet = client.open_by_url(
+        "https://docs.google.com/spreadsheets/d/17lcrlxUhcervwQTOctLZkdvBVpAwyuWu7DQQ3d_oVSQ/edit?usp=sharing"
+    ).sheet1
+    phone_column = sheet.col_values(5)
+
+    sheet = spreadsheet.sheet1
+    number = number.replace("(", "").replace(")", "").replace(" ", "").replace("+", "")
+    data = await state.get_data()
+    num = data.get("num", [])
+    first_name = data.get("first_name", [])
+    last_name = data.get("last_name", [])
+    num = num[0]
+    if number == str(num):
+        phone = number
+        user_phone_map[message.from_user.id] = phone
+        conf = "Confirmed"
+        user_data = [conf, first_name[0], last_name[0], num, message.from_user.id]
+        for i in range(0, 99):
+            user_data.append(0)
+        sheet.append_row(user_data)
+        state.update_data(SignInSuper=[1])
+        user_data.clear()
+        await message.answer(
+            "Номер підтверджено. Вітаємо в клубі розумників та розумниць! 😉"
+        )
+        await state.clear()
+    else:
+        await message.answer(
+            "Номер на якому знаходиться телеграм не співпадає з номером вказаним при реєстрації",
+            reply_markup=kb.singIn,
+        )
+        await state.clear()
 
 
 @router.message(Command("menu"))
