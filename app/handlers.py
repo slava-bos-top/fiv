@@ -277,22 +277,18 @@ async def start_handler(message: Message, state: FSMContext):
     text = message.text
 
     # 🔍 Витягуємо аргумент після /start
-    if message.text.startswith("/confirm "):
-        param = message.text.split(" ", 1)[1]  # ← буде "phone_380501234567"
-
-        if param.startswith("phone_"):
-            await state.set_state(UserProgress.numbers)
-            phone = param.replace("phone_", "")
-            await message.answer(
-                f"👋 Вітаю! Надішліть посилання з номером, для підтвердження номера.",
-                reply_markup=kb.get_number,
-            )
-            print(f"Chat ID: {chat_id}, Phone: {phone}")
-            await state.update_data(num=[phone])
-        else:
-            await message.answer("❌ Невірний формат параметра.")
+    if param and param.startswith("confirm_"):
+        phone = param.replace("confirm_", "")
+        await state.set_state(UserProgress.numbers)
+        await message.answer(
+            f"👋 Вітаю! Надішліть посилання з номером, для підтвердження номера.",
+            reply_markup=kb.get_number,
+        )
+        await state.update_data(num=[phone])
+        print(f"Phone from deep link: {phone}")
     else:
-        await message.answer("👋 Вітаю! Надішліть посилання з номером.")
+        # Звичайна логіка /start без deep link
+        await message.answer("👋 Привіт! Це головне меню твого помічника 📚", reply_markup=kb.main_menu)
 
 
 @router.message(StateFilter(UserProgress.numbers), F.contact)
