@@ -275,11 +275,6 @@ async def homework_done_callbacktask(callback: CallbackQuery, state: FSMContext)
 
 
 @router.message(CommandStart(deep_link=True))
-async def start_handler(message: Message, state: FSMContext):
-    await message.answer("Привіт!")
-
-
-@router.message(CommandStart(deep_link=True))
 async def start_handler(message: Message, state: FSMContext, command: CommandObject):
     chat_id = message.chat.id
     user = message.from_user
