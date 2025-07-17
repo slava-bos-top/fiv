@@ -1,4 +1,5 @@
 from aiogram.filters import Command, CommandStart, StateFilter
+from aiogram.filters.command import CommandObject
 from aiogram.types import (
     Message,
     FSInputFile,
