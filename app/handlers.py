@@ -277,7 +277,7 @@ async def start_handler(message: Message, state: FSMContext):
     text = message.text
 
     # 🔍 Витягуємо аргумент після /start
-    if message.text.startswith("/start "):
+    if message.text.startswith("/confirm "):
         param = message.text.split(" ", 1)[1]  # ← буде "phone_380501234567"
 
         if param.startswith("phone_"):
