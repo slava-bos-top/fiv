@@ -365,6 +365,11 @@ async def register_city(message: Message, state: FSMContext):
         await state.clear()
 
 
+@router.message(Command("start"))
+async def regular_start_handler(message: Message, state: FSMContext):
+    await message.answer("👋 Привіт! Це головне меню твого помічника 📚")
+
+
 @router.message(Command("menu"))
 async def start(message: Message, state: FSMContext):
     data = await state.get_data()
