@@ -122,7 +122,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
         "https://docs.google.com/spreadsheets/d/17lcrlxUhcervwQTOctLZkdvBVpAwyuWu7DQQ3d_oVSQ/edit?usp=sharing"
     ).sheet1
 
-    phone_column = sheet.col_values(5)
+    phone_column = sheet.col_values(4)
     number_to_find = user_phone_map.get(callback.from_user.id)
 
     try:
@@ -150,7 +150,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             await callback.message.answer("Цей урок вже було пройдено")
         else:
             # leson_list[les[2]] = f"{leson_list[les[2]]} ✅"
-            row_values[23 + list_for_exsel_lesson[les[0]][les[1]] + les[2]] = 1
+            row_values[24 + list_for_exsel_lesson[les[0]][les[1]] + les[2]] = 1
 
             sheet.update(f"A{row_index}", [row_values])
 
@@ -199,7 +199,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             #         resize_keyboard=True,
             #     ),
             # )
-            row_values[10 + les[0] * 3 + les[1]] = 1
+            row_values[11 + les[0] * 3 + les[1]] = 1
 
             sheet.update(f"A{row_index}", [row_values])
         j = 1
@@ -236,7 +236,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
                 #         resize_keyboard=True,
                 #     ),
                 # )
-                row_values[5 + les[0]] = 1
+                row_values[6 + les[0]] = 1
 
                 sheet.update(f"A{row_index}", [row_values])
         data = await state.get_data()
@@ -256,6 +256,35 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
                 "Щоб отримати можливість зберігати прогрес, треба зареєструватись або увійти в акаунт",
                 reply_markup=kb.regestration,
             )
+
+
+@router.callback_query(F.data == "comfirmsignIn")
+async def homework_done_callbacks(callback: CallbackQuery):
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    cred_json_str = Config.GOOGLE_CREDENTIALS
+
+    cred_dict = json.loads(cred_json_str)
+    cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
+    client = gspread.authorize(creds)
+
+    sheet = client.open_by_url(
+        "https://docs.google.com/spreadsheets/d/17lcrlxUhcervwQTOctLZkdvBVpAwyuWu7DQQ3d_oVSQ/edit?usp=sharing"
+    ).sheet1
+
+    phone_column = sheet.col_values(4)
+    number_to_find = user_phone_map.get(callback.from_user.id)
+
+    row_index = phone_column.index(number_to_find) + 1
+    row_values = sheet.row_values(row_index)
+
+    row_values[6] = 1
+
+    sheet.update(f"A{row_index}", [row_values])
+    await callback.answer("Вхід пітверджено!")
 
 
 @router.callback_query(F.data == "Молодець! Так тримати!")
@@ -348,10 +377,11 @@ async def register_city(message: Message, state: FSMContext):
     last_name = data.get("last_name", [])
     num = num[0]
     if number == str(num):
+        ena = 0
         phone = number
         user_phone_map[message.from_user.id] = phone
         conf = "Confirmed"
-        user_data = [conf, first_name[0], last_name[0], num, message.from_user.id]
+        user_data = [conf, first_name[0], last_name[0], num, message.from_user.id, ena]
         for i in range(0, 99):
             user_data.append(0)
         sheet.append_row(user_data)
@@ -379,9 +409,11 @@ async def register_city(message: Message, state: FSMContext):
 
 @router.message(Command("start"))
 async def regular_start_handler(message: Message, state: FSMContext):
-    await bot.set_my_commands([], scope=BotCommandScopeDefault())
-    await bot.set_chat_menu_button(
-        chat_id=message.chat.id, menu_button=MenuButtonDefault()
+    await bot.set_my_commands(
+        [
+            BotCommand(command="menu", description="Показати меню"),
+        ],
+        scope=BotCommandScopeChat(chat_id=message.chat.id),
     )
     await message.answer(
         "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело!",
@@ -1098,4 +1130,3 @@ async def Lesson(message: Message, state: FSMContext):
         text=text,
         reply_markup=keyboard,
     )
-
