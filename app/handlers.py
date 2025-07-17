@@ -281,10 +281,10 @@ async def homework_done_callbacks(callback: CallbackQuery):
     row_index = phone_column.index(number_to_find) + 1
     row_values = sheet.row_values(row_index)
 
-    row_values[6] = 1
+    row_values[5] = 1
 
     sheet.update(f"A{row_index}", [row_values])
-    await callback.answer("Вхід пітверджено!")
+    await callback.message.answer("Вхід пітверджено!")
 
 
 @router.callback_query(F.data == "Молодець! Так тримати!")
