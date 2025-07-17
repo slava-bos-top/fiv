@@ -1,4 +1,4 @@
-from aiogram.filters import Command, CommandStart, StateFilter
+aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.filters.command import CommandObject
 from aiogram.types import (
     Message,
@@ -7,6 +7,11 @@ from aiogram.types import (
     InlineKeyboardButton,
     CallbackQuery,
     ReplyKeyboardRemove,
+    MenuButtonCommands,
+    MenuButtonDefault,
+    BotCommandScopeDefault,
+    BotCommandScopeChat,
+    BotCommand,
 )
 from aiogram import Router, F
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -30,6 +35,7 @@ from aiogram.fsm.context import FSMContext
 
 import app.keyboards as kb
 from config import Config
+from main import bot
 
 
 class UserProgress(StatesGroup):
@@ -269,6 +275,11 @@ async def homework_done_callbacktask(callback: CallbackQuery, state: FSMContext)
 
 
 @router.message(CommandStart(deep_link=True))
+async def start_handler(message: Message, state: FSMContext):
+    await message.answer("Привіт!")
+
+
+@router.message(CommandStart(deep_link=True))
 async def start_handler(message: Message, state: FSMContext, command: CommandObject):
     chat_id = message.chat.id
     user = message.from_user
@@ -292,10 +303,7 @@ async def start_handler(message: Message, state: FSMContext, command: CommandObj
         print(f"✅ Deep link підтвердження: {phone}")
     else:
         # Стандартна логіка /start без параметрів
-        await message.answer(
-            "👋 Привіт! Це головне меню твого помічника 📚",
-            reply_markup=kb.main_menu
-        )
+        await message.answer("Виникла проблема, повторіть авторизацію")
 
 
 @router.message(StateFilter(UserProgress.numbers), F.contact)
@@ -356,18 +364,34 @@ async def register_city(message: Message, state: FSMContext):
         await message.answer(
             "Номер підтверджено. Вітаємо в клубі розумників та розумниць! 😉"
         )
+        await bot.set_my_commands(
+            [
+                BotCommand(command="menu", description="Показати меню"),
+            ],
+            scope=BotCommandScopeChat(chat_id=message.chat.id),
+        )
+        await message.answer(
+            "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело!",
+            reply_markup=main,
+        )
         await state.clear()
     else:
         await message.answer(
             "Номер на якому знаходиться телеграм не співпадає з номером вказаним при реєстрації",
-            reply_markup=kb.singIn,
         )
         await state.clear()
 
 
 @router.message(Command("start"))
 async def regular_start_handler(message: Message, state: FSMContext):
-    await message.answer("👋 Привіт! Це головне меню твого помічника 📚")
+    await bot.set_my_commands([], scope=BotCommandScopeDefault())
+    await bot.set_chat_menu_button(
+        chat_id=message.chat.id, menu_button=MenuButtonDefault()
+    )
+    await message.answer(
+        "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело!",
+        reply_markup=main,
+    )
 
 
 @router.message(Command("menu"))
@@ -1079,3 +1103,4 @@ async def Lesson(message: Message, state: FSMContext):
         text=text,
         reply_markup=keyboard,
     )
+
