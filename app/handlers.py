@@ -267,7 +267,7 @@ async def homework_done_callbacktask(callback: CallbackQuery, state: FSMContext)
     )
 
 
-@router.message(CommandStart(deep_link=True))
+@router.message(CommandStart())
 async def start_handler(message: Message, state: FSMContext):
     await message.answer("Привіт!")
 
