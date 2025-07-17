@@ -352,7 +352,6 @@ async def register_city(message: Message, state: FSMContext):
         for i in range(0, 99):
             user_data.append(0)
         sheet.append_row(user_data)
-        state.update_data(SignInSuper=[1])
         user_data.clear()
         await message.answer(
             "Номер підтверджено. Вітаємо в клубі розумників та розумниць! 😉"
