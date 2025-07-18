@@ -19,6 +19,8 @@ from aiogram.exceptions import TelegramBadRequest
 import json
 
 import sys
+import base64
+import requests
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -150,7 +152,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             await callback.message.answer("Цей урок вже було пройдено")
         else:
             # leson_list[les[2]] = f"{leson_list[les[2]]} ✅"
-            row_values[24 + list_for_exsel_lesson[les[0]][les[1]] + les[2]] = 1
+            row_values[25 + list_for_exsel_lesson[les[0]][les[1]] + les[2]] = 1
 
             sheet.update(f"A{row_index}", [row_values])
 
@@ -199,7 +201,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             #         resize_keyboard=True,
             #     ),
             # )
-            row_values[11 + les[0] * 3 + les[1]] = 1
+            row_values[12 + les[0] * 3 + les[1]] = 1
 
             sheet.update(f"A{row_index}", [row_values])
         j = 1
@@ -236,7 +238,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
                 #         resize_keyboard=True,
                 #     ),
                 # )
-                row_values[6 + les[0]] = 1
+                row_values[7 + les[0]] = 1
 
                 sheet.update(f"A{row_index}", [row_values])
         data = await state.get_data()
@@ -369,6 +371,25 @@ async def register_city(message: Message, state: FSMContext):
     ).sheet1
     phone_column = sheet.col_values(5)
 
+    user_id = message.from_user.id
+
+    photos = await bot.get_user_profile_photos(user_id, limit=1)
+
+    if photos.total_count > 0:
+        photo = photos.photos[0][-1]
+
+        file = await bot.get_file(photo.file_id)
+        file_path = file.file_path
+
+        photo_url = f"https://api.telegram.org/file/bot{Config.BOT_TOKEN}/{file_path}"
+
+        response = requests.get(photo_url)
+        image_bytes = response.content
+
+        img_base64 = base64.b64encode(image_bytes).decode("utf-8")
+    else:
+        img_base64 = 0
+
     sheet = spreadsheet.sheet1
     number = number.replace("(", "").replace(")", "").replace(" ", "").replace("+", "")
     data = await state.get_data()
@@ -381,7 +402,15 @@ async def register_city(message: Message, state: FSMContext):
         phone = number
         user_phone_map[message.from_user.id] = phone
         conf = "Confirmed"
-        user_data = [conf, first_name[0], last_name[0], num, message.from_user.id, ena]
+        user_data = [
+            conf,
+            first_name[0],
+            last_name[0],
+            num,
+            message.from_user.id,
+            ena,
+            img_base64,
+        ]
         for i in range(0, 99):
             user_data.append(0)
         sheet.append_row(user_data)
@@ -1130,3 +1159,4 @@ async def Lesson(message: Message, state: FSMContext):
         text=text,
         reply_markup=keyboard,
     )
+
