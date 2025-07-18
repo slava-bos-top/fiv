@@ -9,3 +9,4 @@ fastapi
 uvicorn
 requests
 google-api-python-client
+cloudinary
