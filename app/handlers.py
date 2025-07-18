@@ -419,7 +419,7 @@ async def register_city(message: Message, state: FSMContext):
             photo_url,
         ] + [
             0
-        ] * 93  # Щоб в сумі було 100 колонок
+        ] * 99  # Щоб в сумі було 100 колонок
 
         sheet.append_row(user_data)
         await message.answer(
