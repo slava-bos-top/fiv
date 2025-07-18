@@ -332,71 +332,78 @@ async def start_handler(message: Message, state: FSMContext, command: CommandObj
         await message.answer("Виникла проблема, повторіть авторизацію")
 
 
+from google.oauth2.service_account import Credentials
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+import io
+
+
 @router.message(StateFilter(UserProgress.numbers), F.contact)
 async def register_city(message: Message, state: FSMContext):
     await message.answer("Дані зберігаються...", reply_markup=ReplyKeyboardRemove())
     await state.update_data(numbers=message.contact)
     data = await state.get_data()
     number = list(data["numbers"])[0][1]
+
+    # 🔐 Авторизація
     scope = [
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
-    # creds = ServiceAccountCredentials.from_json_keyfile_name("cred.json", scope)
-    cred_json_str = Config.GOOGLE_CREDENTIALS
-
-    cred_dict = json.loads(cred_json_str)
+    cred_dict = json.loads(Config.GOOGLE_CREDENTIALS)
     cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
+    creds = Credentials.from_service_account_info(cred_dict, scopes=scope)
+
+    # 🔗 Google Sheets
     client = gspread.authorize(creds)
     spreadsheet = client.open_by_url(
         "https://docs.google.com/spreadsheets/d/17lcrlxUhcervwQTOctLZkdvBVpAwyuWu7DQQ3d_oVSQ/edit?usp=sharing"
     )
+    sheet = spreadsheet.sheet1
 
-    scope = [
-        "https://spreadsheets.google.com/feeds",
-        "https://www.googleapis.com/auth/drive",
-    ]
-    # creds = ServiceAccountCredentials.from_json_keyfile_name("cred.json", scope)
-    cred_json_str = Config.GOOGLE_CREDENTIALS
-
-    cred_dict = json.loads(cred_json_str)
-    cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
-
-    client = gspread.authorize(creds)
-
-    sheet = client.open_by_url(
-        "https://docs.google.com/spreadsheets/d/17lcrlxUhcervwQTOctLZkdvBVpAwyuWu7DQQ3d_oVSQ/edit?usp=sharing"
-    ).sheet1
-    phone_column = sheet.col_values(5)
-
+    # 📷 Отримання фото користувача
     user_id = message.from_user.id
-
     photos = await bot.get_user_profile_photos(user_id, limit=1)
+    photo_url = "https://example.com/default-avatar.jpg"  # на випадок якщо нема фото
 
     if photos.total_count > 0:
         photo = photos.photos[0][-1]
-
         file = await bot.get_file(photo.file_id)
         file_path = file.file_path
-
-        photo_url = f"https://api.telegram.org/file/bot{Config.BOT_TOKEN}/{file_path}"
-
-        response = requests.get(photo_url)
+        tg_file_url = f"https://api.telegram.org/file/bot{Config.BOT_TOKEN}/{file_path}"
+        response = requests.get(tg_file_url)
         image_bytes = response.content
 
-        img_base64 = base64.b64encode(image_bytes).decode("utf-8")
-    else:
-        img_base64 = 0
+        # 📤 Завантаження в Google Drive
+        drive_service = build("drive", "v3", credentials=creds)
+        file_metadata = {
+            "name": f"{user_id}.jpg",
+            "parents": [
+                "1_C0-nopAEcI-9nSFLJYXi2C5cmD394sD"
+            ],  # 🔁 ВСТАВ СЮДИ СВІЙ FOLDER ID
+        }
+        media = MediaIoBaseUpload(io.BytesIO(image_bytes), mimetype="image/jpeg")
+        uploaded_file = (
+            drive_service.files()
+            .create(body=file_metadata, media_body=media, fields="id")
+            .execute()
+        )
 
-    sheet = spreadsheet.sheet1
+        # 🔓 Робимо публічним
+        drive_service.permissions().create(
+            fileId=uploaded_file["id"],
+            body={"role": "reader", "type": "anyone"},
+        ).execute()
+
+        # 📥 Отримаємо прямий лінк
+        photo_url = f"https://drive.google.com/uc?id={uploaded_file['id']}"
+
+    # 📋 Формування даних
     number = number.replace("(", "").replace(")", "").replace(" ", "").replace("+", "")
-    data = await state.get_data()
-    num = data.get("num", [])
-    first_name = data.get("first_name", [])
-    last_name = data.get("last_name", [])
-    num = num[0]
+    num = data.get("num", [])[0]
+    first_name = data.get("first_name", [])[0]
+    last_name = data.get("last_name", [])[0]
+
     if number == str(num):
         ena = 0
         phone = number
@@ -404,26 +411,26 @@ async def register_city(message: Message, state: FSMContext):
         conf = "Confirmed"
         user_data = [
             conf,
-            first_name[0],
-            last_name[0],
+            first_name,
+            last_name,
             num,
             message.from_user.id,
             ena,
-            img_base64,
-        ]
-        for i in range(0, 99):
-            user_data.append(0)
+            photo_url,
+        ] + [
+            0
+        ] * 93  # Щоб в сумі було 100 колонок
+
         sheet.append_row(user_data)
-        user_data.clear()
         await message.answer(
             "Номер підтверджено. Вітаємо в клубі розумників та розумниць! 😉"
         )
+
         await bot.set_my_commands(
-            [
-                BotCommand(command="menu", description="Показати меню"),
-            ],
+            [BotCommand(command="menu", description="Показати меню")],
             scope=BotCommandScopeChat(chat_id=message.chat.id),
         )
+
         await message.answer(
             "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело!",
             reply_markup=main,
@@ -431,7 +438,7 @@ async def register_city(message: Message, state: FSMContext):
         await state.clear()
     else:
         await message.answer(
-            "Номер на якому знаходиться телеграм не співпадає з номером вказаним при реєстрації",
+            "Номер на якому знаходиться телеграм не співпадає з номером вказаним при реєстрації"
         )
         await state.clear()
 
