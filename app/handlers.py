@@ -413,7 +413,7 @@ async def register_city(message: Message, state: FSMContext):
             scope=BotCommandScopeChat(chat_id=message.chat.id),
         )
         await message.answer(
-            "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони...",
+            "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело!",
             reply_markup=main,
         )
         await state.clear()
