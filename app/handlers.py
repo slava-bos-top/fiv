@@ -201,7 +201,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             #         resize_keyboard=True,
             #     ),
             # )
-        row_values[12 + les[0] * 3 + les[1]] = g
+        row_values[12 + les[0] * 3 + les[1]] = g - 1
 
         sheet.update(f"A{row_index}", [row_values])
         j = 1
@@ -238,7 +238,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
                 #         resize_keyboard=True,
                 #     ),
                 # )
-            row_values[7 + les[0]] = j
+            row_values[7 + les[0]] = j - 1
 
             sheet.update(f"A{row_index}", [row_values])
         data = await state.get_data()
