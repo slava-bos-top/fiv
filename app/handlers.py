@@ -81,6 +81,7 @@ main = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="Курси")],
         [KeyboardButton(text="Марафони")],
+        [KeyboardButton(text="Прогрес")],
         [KeyboardButton(text="Про нас")],
     ],
     resize_keyboard=True,
@@ -149,7 +150,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
 
         if "✅" in inf[les[2]]:
             # leson_list[les[2]] = f"{leson_list[les[2]]}"
-            await callback.message.answer("Цей урок вже було пройдено")
+            await callback.message.answer("Цей урок вже було пройдено!")
         else:
             # leson_list[les[2]] = f"{leson_list[les[2]]} ✅"
             row_values[25 + list_for_exsel_lesson[les[0]][les[1]] + les[2]] = 1
@@ -256,7 +257,6 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
         if "None is not in list" in str(v):
             await callback.message.answer(
                 "Щоб отримати можливість зберігати прогрес, треба зареєструватись або увійти в акаунт",
-                reply_markup=kb.regestration,
             )
 
 
@@ -286,7 +286,9 @@ async def homework_done_callbacks(callback: CallbackQuery):
     row_values[5] = 1
 
     sheet.update(f"A{row_index}", [row_values])
-    await callback.message.answer("Вхід пітверджено!")
+    await callback.message.answer(
+        "Вхід пітверджено! Натискай Меню!", reply_markup=ReplyKeyboardRemove
+    )
 
 
 @router.callback_query(F.data == "Молодець! Так тримати!")
@@ -435,12 +437,30 @@ async def regular_start_handler(message: Message, state: FSMContext):
         scope=BotCommandScopeChat(chat_id=message.chat.id),
     )
     await message.answer(
-            "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело!",
-            reply_markup=main,
-        )
+        "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело! Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/ (якщо ще не авторизувався - саме час це зробити😉). Пооогнали!",
+        reply_markup=main,
+    )
     await message.answer(
         "Натискай кнопку Меню (на телефоні - три рисочки внизу зліва). Ця кнопка завжди повертатиме тебе до Головного меню. Обирай марафон чи курс, який тебе зацікавив, ознайомлюйся з матеріалами уроку, виконуй завдання та дивуй своїми новими знаннями оточуючих! Запрошуй друзів приєднатися, адже разом дізнаватися щось нове завжди цікавіше! Починаймо! \n👇",
         reply_markup=ReplyKeyboardRemove(),
+    )
+
+
+@router.message(F.text == "Прогрес")
+async def regular_start_handler(message: Message, state: FSMContext):
+    button_text = "Перейти до сайту"
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=f"{button_text}", url="https://fiv-one-site.vercel.app/"
+                )
+            ]
+        ]
+    )
+    await message.answer(
+        "Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/ (якщо ще не авторизувався - саме час це зробити😉). Пооогнали!",
+        reply_markup=keyboard,
     )
 
 
@@ -1153,4 +1173,3 @@ async def Lesson(message: Message, state: FSMContext):
         text=text,
         reply_markup=keyboard,
     )
-
