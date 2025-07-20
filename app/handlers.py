@@ -287,7 +287,7 @@ async def homework_done_callbacks(callback: CallbackQuery):
 
     sheet.update(f"A{row_index}", [row_values])
     await callback.message.answer(
-        "Вхід пітверджено! Натискай Меню!", reply_markup=ReplyKeyboardRemove
+        "Вхід пітверджено! Натискай Меню!", reply_markup=ReplyKeyboardRemove()
     )
 
 
