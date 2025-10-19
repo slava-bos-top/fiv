@@ -12,8 +12,12 @@ from aiogram.types import (
     BotCommandScopeDefault,
     BotCommandScopeChat,
     BotCommand,
+    BufferedInputFile,
 )
 from aiogram import Router, F
+
+router = Router()
+
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.exceptions import TelegramBadRequest
 import json
@@ -30,7 +34,8 @@ from app.storage import user_phone_map
 with open("lessons.json", "r", encoding="utf-8") as f:
     LESSONS = json.load(f)
 
-router = Router()
+with open("curs.json", "r", encoding="utf-8") as c:
+    CURS = json.load(c)
 
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
@@ -38,6 +43,9 @@ from aiogram.fsm.context import FSMContext
 import app.keyboards as kb
 from config import Config
 from main import bot
+
+from io import BytesIO
+import matplotlib.pyplot as plt
 
 
 class UserProgress(StatesGroup):
@@ -68,11 +76,26 @@ class UserProgress(StatesGroup):
     lesonForWeekSecond3 = State()
     lesonForWeekThird3 = State()
     leson4 = State()
-    num = State()
     first_name = State()
     last_name = State()
     numbers = State()
     SignInSuper = State()
+    statisticM = State()
+    dzM = State()
+    indexM = State()
+    indexWeekM = State()
+    # Curs:
+    Curskey0 = State()
+    Cursnum = State()
+    Cursway = State()
+    Cursles = State()
+    Curskof = State()
+    task0 = State()
+    task1 = State()
+    task2 = State()
+    Cursends = State()
+    indexC = State()
+    dzC = State()
 
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
@@ -98,11 +121,541 @@ marafons = [
     "Новорічний",
     "Повернутися до тижнів",
 ]
+Curs = [
+    "Розвиток креативності",
+    "Фізика",
+    "Програмування",
+    "Повернутися до курсів",
+]
 weeks = ["Тиждень 1", "Тиждень 2", "Тиждень 3"]
-lessons = ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5", "Урок 6", "Урок 7"]
+lessons = [
+    "Урок 1",
+    "Урок 2",
+    "Урок 3",
+    "Урок 4",
+    "Урок 5",
+    "Урок 6",
+    "Урок 7",
+    "Наступ",
+    "Перейт",
+]
+
+tasks = [
+    "Заняття 1",
+    "Заняття 2",
+    "Заняття 3",
+    "Заняття 4",
+    "Заняття 5",
+    "Заняття 6",
+    "Заняття 7",
+    "Заняття 8",
+    "Заняття 9",
+    "Заняття 10",
+    "Наступне з",
+]
 
 
 # callback
+
+# Curs
+
+
+@router.callback_query(F.data == "refresh_tasks")
+async def handle_refresh_callback(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+
+    # Отримуємо необхідні дані
+    chat_id = callback.message.chat.id
+    user_id = callback.from_user.id
+    bot_id = bot.id
+
+    # Створюємо "фейкове" повідомлення
+    data = await state.get_data()
+    Cursends = data.get("Cursends", [])
+
+    if Cursends == 0:
+        fake_msg = Message(
+            message_id=9999,
+            date=datetime.now(),
+            chat=callback.message.chat,
+            from_user=callback.from_user,
+            text="Наступне заняття",
+        )
+        await LessonCurs(fake_msg, state)
+
+
+@router.callback_query(F.data == "dzСС")
+async def dz(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    dzC = data.get("dzC", [])
+
+    t = dzC["task"]
+
+    await bot.send_message(
+        chat_id=callback.message.chat.id,
+        text=t,
+        parse_mode="HTML",
+        disable_web_page_preview=False,
+    )
+
+    data = await state.get_data()
+    Cursway = data.get("Cursway", [])
+
+    await state.update_data(Curskof=[1])
+    if dzC["End"] == "0":
+        await state.update_data(Cursends=0)
+        textForEnds = "Готовий до наступного заняття? 🚀"
+        textForEndstextForEndsInButton = "Наступний урок"
+        await state.update_data(Cursnum=[])
+        text = "Крокуй далі, тисни кнопку 👇 Пройдене завдання отримає позначку ✅ (завдання зроблено)."
+    elif dzC["End"] == "1":
+        await state.update_data(Cursends=1)
+        await state.update_data(Cursnum=[])
+        data = await state.get_data()
+        Cursway = data.get("Cursway", [])
+        p = Cursway[0]
+        await state.update_data(Cursway=[])
+        data = await state.get_data()
+        Cursway = data.get("Cursway", [])
+        Cursway.append(p)
+        await state.update_data(Cursway=Cursway)
+        text = "Це було останнє заняття цього тижня! Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
+    else:
+        await state.update_data(Cursends=2)
+        text = "Це було останнє завдання цього курсу! Крокуй далі, тисни кнопку 👇 Пройдене завдання отримає позначку ✅ (завдання зроблено)."
+        await state.update_data(Cursnum=[])
+        await state.update_data(Cursway=[])
+    button_text = "Позначити як виконаний ✅"
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=f"{button_text}", callback_data="CursDone")]
+        ]
+    )
+
+    await bot.send_message(
+        chat_id=callback.message.chat.id,
+        text=text,
+        reply_markup=keyboard,
+    )
+
+    if dzC["End"] != "2":
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text=textForEndstextForEndsInButton,
+                        callback_data="refresh_tasks",
+                    )
+                ]
+            ]
+        )
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=textForEnds,
+            reply_markup=keyboard,
+        )
+    else:
+        data = await state.get_data()
+        Curskey0 = data.get("Curskey0", [])
+        lessonKeyboard = ReplyKeyboardMarkup(
+            keyboard=[[KeyboardButton(text=lesson)] for lesson in Curskey0],
+            resize_keyboard=True,
+        )
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text="Вітаю, ти завершив курс! 🔥 Готовий до нового виклику? Обери наступний!",
+            reply_markup=lessonKeyboard,
+        )
+
+
+# Marafons
+
+from datetime import datetime
+
+
+@router.callback_query(F.data == "refresh_lessons")
+async def handle_refresh_callback(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+
+    # Отримуємо необхідні дані
+    chat_id = callback.message.chat.id
+    user_id = callback.from_user.id
+    bot_id = bot.id
+
+    # Створюємо "фейкове" повідомлення
+    data = await state.get_data()
+    ends = data.get("ends", [])
+
+    if ends == 0:
+        fake_msg = Message(
+            message_id=9999,
+            date=datetime.now(),
+            chat=callback.message.chat,
+            from_user=callback.from_user,
+            text="Наступний урок",
+        )
+        await LessonMAR(fake_msg, state)
+    elif ends == 1:
+        fake_msg = Message(
+            message_id=9999,
+            date=datetime.now(),
+            chat=callback.message.chat,
+            from_user=callback.from_user,
+            text="Перейти на наступний тиждень",
+        )
+        await LessonMAR(fake_msg, state)
+    else:
+        pass
+
+
+@router.callback_query(F.data == "dzMM")
+async def dz(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    tesks = data.get("dzM", [])
+    dz = tesks["dz"]
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=f"Дз зробив!", callback_data="Молодець! Так тримати!"
+                )
+            ]
+        ]
+    )
+    if "addDzPr" in tesks:
+        video = FSInputFile(tesks["addDzPr"])
+        await bot.send_document(
+            chat_id=callback.message.chat.id,
+            document=video,
+            parse_mode="HTML",
+        )
+    videoExp = tesks["videoExp"]
+    imageexp = FSInputFile(tesks["imgExp"])
+    if tesks["imgExp"] == "0":
+        if tesks["Cite"] == "0":
+            try:
+                if videoExp != "0":
+                    video = FSInputFile(videoExp)
+                    await bot.send_video(
+                        chat_id=callback.message.chat.id,
+                        video=video,
+                        caption=dz,
+                        disable_notification=True,
+                        parse_mode="HTML",
+                    )
+                else:
+                    await bot.send_message(
+                        chat_id=callback.message.chat.id,
+                        text=dz,
+                        parse_mode="HTML",
+                    )
+            except TelegramBadRequest as e:
+                if "caption is too long" in str(e):
+                    await bot.send_message(
+                        chat_id=callback.message.chat.id,
+                        text=dz,
+                        parse_mode="HTML",
+                    )
+                    await bot.send_video(
+                        chat_id=callback.message.chat.id,
+                        video=video,
+                        disable_notification=True,
+                    )
+                else:
+                    raise e
+        else:
+            text = f"{dz}"
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text=text,
+                disable_web_page_preview=False,
+                parse_mode="HTML",
+            )
+    else:
+        try:
+            await bot.send_photo(
+                chat_id=callback.message.chat.id,
+                photo=imageexp,
+                caption=dz,
+                parse_mode="HTML",
+            )
+        except TelegramBadRequest as e:
+            if "caption is too long" in str(e):
+                await bot.send_message(
+                    chat_id=callback.message.chat.id,
+                    text=dz,
+                    parse_mode="HTML",
+                )
+                await bot.send_photo(
+                    chat_id=callback.message.chat.id,
+                    photo=imageexp,
+                )
+            else:
+                raise e
+    if "docDz" in tesks:
+        video = FSInputFile(tesks["docDz"])
+        await bot.send_document(
+            chat_id=callback.message.chat.id,
+            document=video,
+            caption='<b>Зроби додаткове завдання "Таблиця цінностей"</b>',
+            parse_mode="HTML",
+        )
+    if "docDzn" in tesks:
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=tesks["docDzn"],
+            parse_mode="HTML",
+        )
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=f"Перевірити себе", callback_data="check")]
+        ]
+    )
+    await bot.send_message(
+        chat_id=callback.message.chat.id,
+        text="Готовий перевірити себе? Натисни кнопку нижче 👇 та вперед!",
+        reply_markup=keyboard,
+    )
+
+
+@router.callback_query(F.data == "check")
+async def dz(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    tesks = data.get("dzM", [])
+    dz = tesks["dz"]
+    k = 1
+    if len(tesks["test"]) == 0:
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text="Цього разу без тестів — просто насолоджуйся матеріалом!",
+        )
+    for i in tesks["test"]:
+        if k == 1:
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text="Перевір себе!",
+                parse_mode="HTML",
+            )
+        test = tesks["test"][f"test_{k}"]
+        question = test["question"]
+        correct_option_id = test["correct_index"]
+        explanation = test["explanation"]
+        options = []
+        m = 0
+        for n in test["options"]:
+            options.append(test["options"][m])
+            m += 1
+        image = FSInputFile(test["img"])
+        if str(test["img"]) != "0":
+            await bot.send_photo(chat_id=callback.message.chat.id, photo=image)
+        if "music" in test:
+            if test["music"] != "0":
+                video = FSInputFile(test["music"])
+                await bot.send_audio(
+                    chat_id=callback.message.chat.id,
+                    audio=video,
+                    caption="Послухай цей фрагмент музики:",
+                )
+        if str(explanation) == "0":
+            if "imgCr" in test:
+                await state.update_data(explat=[])
+                await state.update_data(imgCr=[])
+                data = await state.get_data()
+                explat = data.get("explat", [])
+                explat.append(test["dop"])
+                await state.update_data(explat=explat)
+                data = await state.get_data()
+                imgCr = data.get("imgCr", [])
+                imgCr.append(test["imgCr"])
+                await state.update_data(imgCr=imgCr)
+                keyboard = InlineKeyboardMarkup(
+                    inline_keyboard=[
+                        [
+                            InlineKeyboardButton(
+                                text="Отримати пояснення до завдання",
+                                callback_data="explation",
+                            )
+                        ]
+                    ]
+                )
+                await bot.send_poll(
+                    chat_id=callback.message.chat.id,
+                    question=question,
+                    options=options,
+                    is_anonymous=False,
+                    type="quiz",
+                    correct_option_id=correct_option_id,
+                    reply_markup=keyboard,
+                )
+            else:
+                await bot.send_poll(
+                    chat_id=callback.message.chat.id,
+                    question=question,
+                    options=options,
+                    is_anonymous=False,
+                    type="quiz",
+                    correct_option_id=correct_option_id,
+                )
+        else:
+            await bot.send_poll(
+                chat_id=callback.message.chat.id,
+                question=question,
+                options=options,
+                is_anonymous=False,
+                type="quiz",
+                correct_option_id=correct_option_id,
+                explanation=explanation,
+            )
+        k += 1
+    if "addDz" in tesks:
+        text = tesks["addDz"]
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=text,
+            disable_web_page_preview=False,
+            parse_mode="HTML",
+        )
+    if "addDzn" in tesks:
+        text = tesks["addDzn"]
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=text,
+            disable_web_page_preview=False,
+            parse_mode="HTML",
+        )
+    if "addVid" in tesks:
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="🎥 Завантажити відео",
+                        url=tesks["addVid"],
+                    )
+                ]
+            ]
+        )
+        text = f"Відеопояснення до завдання другого тижня на мові С++ https://www.youtube.com/watch?v=njBJMryXkAU"
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=text,
+            parse_mode="HTML",
+        )
+
+    text = "Перевір себе!"
+    if tesks["addVideo"] != "0":
+        text = f'<a href="{tesks["addVideo"]}">#Додаткове відео 👇</a>'
+        video_url = tesks["addVideo"]
+        button_text = "Переглянути відео"
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text=f"{button_text}", url=f"{video_url}")]
+            ]
+        )
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=text,
+            reply_markup=keyboard,
+            parse_mode="HTML",
+            disable_web_page_preview=False,
+        )
+    data = await state.get_data()
+    way = data.get("way", [])
+    if int(way[1]) == 0:
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text=f"Обрати інший урок", callback_data="next")]
+            ]
+        )
+    elif int(way[1]) == 1:
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text=f"Обрати інший урок", callback_data="nextsecond"
+                    )
+                ]
+            ]
+        )
+    else:
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text=f"Обрати інший урок", callback_data="nextthird"
+                    )
+                ]
+            ]
+        )
+    await state.update_data(kof=[1])
+    if tesks["End"] == "0":
+        await state.update_data(ends=0)
+
+        await state.update_data(num=[])
+        text = "Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
+        textForEnds = "Готовий до наступного уроку? 🚀"
+        textForEndstextForEndsInButton = "Наступний урок"
+    elif tesks["End"] == "1":
+        textForEnds = "Новий тиждень — нові знання! 🚀"
+        textForEndstextForEndsInButton = "Наступний тиждень"
+        await state.update_data(ends=1)
+        await state.update_data(num=[])
+        data = await state.get_data()
+        way = data.get("way", [])
+        p = way[0]
+        await state.update_data(way=[])
+        data = await state.get_data()
+        way = data.get("way", [])
+        way.append(p)
+        await state.update_data(way=way)
+        text = "Це був останній урок цього тижня! Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
+    else:
+        textForEnds = "Обирай інший марафон"
+        await state.update_data(ends=2)
+        text = "Це був останній урок цього марафону! Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
+        await state.update_data(num=[])
+        await state.update_data(way=[])
+    button_text = "Позначити як виконаний ✅"
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=f"{button_text}", callback_data="Done")]
+        ]
+    )
+    await bot.send_message(
+        chat_id=callback.message.chat.id,
+        text=text,
+        reply_markup=keyboard,
+    )
+
+    if tesks["End"] != "2":
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text=textForEndstextForEndsInButton,
+                        callback_data="refresh_lessons",
+                    )
+                ]
+            ]
+        )
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=textForEnds,
+            reply_markup=keyboard,
+        )
+    else:
+        data = await state.get_data()
+        marafonskey = data.get("marafonskey0", [])
+        lessonKeyboard = ReplyKeyboardMarkup(
+            keyboard=[[KeyboardButton(text=lesson)] for lesson in marafonskey],
+            resize_keyboard=True,
+        )
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text="Вітаю, ти завершив марафон! 🔥 Готовий до нового виклику? Обери наступний!",
+            reply_markup=lessonKeyboard,
+        )
+
+
 @router.callback_query(F.data == "Done")
 async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer("Прогрес зберігається...")
@@ -169,10 +722,14 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             resize_keyboard=True,
         )
 
+        data = await state.get_data()
+        statisticM = data.get(statisticM, [])
         g = 1
         for i in leson_list:
             if i[-1:] == "✅":
                 g += 1
+        statisticM[les[0]][les[1]] = g - 1
+        await state.update_data(statisticM=statisticM)
         week_list = []
         if int(len(leson_list)) == g:
             wek_list_name = f"wek{les[0]}"
@@ -248,6 +805,127 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             text = (
                 "Молодець! Так тримати! Обирай наступний урок! Далі - ще цікавіше! 🙌"
             )
+        elif ends == 1:
+            text = "Молодець! Так тримати! Обирай наступний тиждень! Далі - ще цікавіше! 🙌"
+        else:
+            text = "Молодець! Так тримати! Обирай інший марафон або курс! Далі - ще цікавіше! 🙌"
+        await callback.message.answer(text=text, reply_markup=lessonKeyboard)
+    except ValueError as v:
+        if "None is not in list" in str(v):
+            await callback.message.answer(
+                "Щоб зберігати свій прогрес зареєструйся на сайті (https://fiv-one-site.vercel.app/). Після реєстрації зможеш спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті або в боті.",
+            )
+
+
+# Curs
+
+
+@router.callback_query(F.data == "CursDone")
+async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer("Прогрес зберігається...")
+    data = await state.get_data()
+    Cursles = data.get("Cursles", [])
+
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    # creds = ServiceAccountCredentials.from_json_keyfile_name("cred.json", scope)
+    cred_json_str = Config.GOOGLE_CREDENTIALS
+
+    cred_dict = json.loads(cred_json_str)
+    cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
+    client = gspread.authorize(creds)
+
+    sheet = client.open_by_url(
+        "https://docs.google.com/spreadsheets/d/17lcrlxUhcervwQTOctLZkdvBVpAwyuWu7DQQ3d_oVSQ/edit?usp=sharing"
+    ).sheet1
+
+    phone_column = sheet.col_values(4)
+    number_to_find = user_phone_map.get(callback.from_user.id)
+
+    try:
+        row_index = phone_column.index(number_to_find) + 1
+        row_values = sheet.row_values(row_index)
+
+        current_module = sys.modules[__name__]
+
+        if Cursles[0] == 0:
+            leson_list_name = f"task{Cursles[0]}"
+            lesson_keyboard_name = f"lesson{Cursles[0]}"
+        elif Cursles[0] == 1:
+            leson_list_name = f"task{Cursles[0]}"
+            lesson_keyboard_name = f"lessonForWeekSecond{Cursles[0]}"
+        else:
+            leson_list_name = f"task{Cursles[0]}"
+            lesson_keyboard_name = f"lessonForWeekThird{Cursles[0]}"
+
+        # leson_list = getattr(current_module, leson_list_name)
+        data = await state.get_data()
+        inf = data.get(leson_list_name, [])
+
+        if "✅" in inf[Cursles[1]]:
+            # leson_list[les[2]] = f"{leson_list[les[2]]}"
+            await callback.message.answer("Це завдання вже було пройдено!")
+        else:
+            # leson_list[les[2]] = f"{leson_list[les[2]]} ✅"
+            # row_values[25 + list_for_exsel_lesson[les[0]][les[1]] + les[2]] = 1
+
+            # sheet.update(f"A{row_index}", [row_values])
+
+            data = await state.get_data()
+            l = data.get(leson_list_name, [])
+            l[Cursles[1]] = f"{l[Cursles[2]]} ✅"
+            await state.update_data(**{leson_list_name: l})
+        data = await state.get_data()
+        leson_list = data.get(leson_list_name, [])
+
+        lessonKeyboard = ReplyKeyboardMarkup(
+            keyboard=[[KeyboardButton(text=lesson)] for lesson in leson_list],
+            resize_keyboard=True,
+        )
+
+        g = 1
+        for i in leson_list:
+            if i[-1:] == "✅":
+                g += 1
+        week_list = []
+        if int(len(leson_list)) == g:
+            wek_list_name = f"Curskey0"
+            # week_keyboard_name = f"week{les[0]}"
+
+            data = await state.get_data()
+            inf = data.get(wek_list_name, [])
+
+            # week_list = getattr(current_module, wek_list_name)
+            if "✅" in inf[Cursles[0]]:
+                # week_list[les[1]] = f"{week_list[les[1]]}"
+                pass
+            else:
+                # week_list[les[1]] = f"{week_list[les[1]]} ✅"
+                data = await state.get_data()
+                l = data.get(wek_list_name, [])
+                l[Cursles[0]] = f"{l[Cursles[0]]} ✅"
+                await state.update_data(**{wek_list_name: l})
+            data = await state.get_data()
+            week_list = data.get(wek_list_name, [])
+
+            # setattr(
+            #     current_module,
+            #     week_keyboard_name,
+            #     ReplyKeyboardMarkup(
+            #         keyboard=[[KeyboardButton(text=week)] for week in week_list],
+            #         resize_keyboard=True,
+            #     ),
+            # )
+        row_values[104 + Cursles[0]] = g - 1
+
+        sheet.update(f"A{row_index}", [row_values])
+        data = await state.get_data()
+        ends = data.get("Cursends", [])
+        if ends == 0:
+            text = "Молодець! Так тримати! Обирай наступне завдання! Далі - ще цікавіше! 🙌"
         elif ends == 1:
             text = "Молодець! Так тримати! Обирай наступний тиждень! Далі - ще цікавіше! 🙌"
         else:
@@ -344,7 +1022,7 @@ async def register_city(message: Message, state: FSMContext):
     data = await state.get_data()
     number = list(data["numbers"])[0][1]
 
-    # 🔐 Google Sheets авторизація
+    # Google Sheets авторизація
     scope = [
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
@@ -415,7 +1093,7 @@ async def register_city(message: Message, state: FSMContext):
             scope=BotCommandScopeChat(chat_id=message.chat.id),
         )
         await message.answer(
-            "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело! Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/statistics.",
+            "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело! Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/statistics або в боті.",
             reply_markup=main,
         )
         await message.answer(
@@ -440,7 +1118,6 @@ async def regular_start_handler(message: Message, state: FSMContext):
     )
     await message.answer(
         "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело! Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/ (якщо ще не авторизувався - саме час це зробити😉).",
-        reply_markup=main,
     )
     await message.answer(
         "Натискай кнопку Меню (на телефоні - три рисочки внизу зліва). Ця кнопка завжди повертатиме тебе до Головного меню. Обирай марафон чи курс, який тебе зацікавив, ознайомлюйся з матеріалами уроку, виконуй завдання та дивуй своїми новими знаннями оточуючих! Запрошуй друзів приєднатися, адже разом дізнаватися щось нове завжди цікавіше! Починаймо! \n👇",
@@ -462,23 +1139,166 @@ async def regular_start_handler(message: Message, state: FSMContext):
         ]
     )
     await message.answer(
-        "Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/statistics (якщо ще не авторизувався - саме час це зробити😉 для цього перейди та авторизуйся на сайті https://fiv-one-site.vercel.app/).",
+        "Також спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/statistics (якщо ще не авторизувався - саме час це зробити😉 для цього перейди та авторизуйся на сайті https://fiv-one-site.vercel.app/).",
         reply_markup=keyboard,
+    )
+    data = await state.get_data()
+    statisticM = data.get("statisticM", [])
+
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text="<b>Твій прогрес:</b>",
+        parse_mode="HTML",
+    )
+
+    labels = ["Пройдено", "Залишилось"]
+    sumF = statisticM[0][0] + statisticM[0][1] + statisticM[0][2]
+    sizes = [(sumF / 19) * 100, (1 - sumF / 19) * 100]
+    colors = ["#04FA0C", "#FF0000"]
+
+    # Створення діаграми
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, colors=colors, autopct="%1.1f%%", startangle=90)
+    ax.axis("equal")
+
+    # Запис у пам’ять
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+
+    # Обгортання в BufferedInputFile
+    photo = BufferedInputFile(buffer.read(), filename="chart.png")
+
+    # Надсилання
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=photo,
+        caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[0][0]} / 7\nТиждень 2: {statisticM[0][1]} / 6\nТиждень 3: {statisticM[0][2]} / 6",
+    )
+
+    sumC = statisticM[1][0] + statisticM[1][1] + statisticM[1][2]
+    sizes = [(sumC / 18) * 100, (1 - sumC / 18) * 100]
+    colors = ["#04FA0C", "#FF0000"]
+
+    # Створення діаграми
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, colors=colors, autopct="%1.1f%%", startangle=90)
+    ax.axis("equal")
+
+    # Запис у пам’ять
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+
+    # Обгортання в BufferedInputFile
+    photo = BufferedInputFile(buffer.read(), filename="chart.png")
+
+    # Надсилання
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=photo,
+        caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[1][0]} / 6\nТиждень 2: {statisticM[1][1]} / 6\nТиждень 3: {statisticM[1][2]} / 6",
+    )
+
+    sumK = statisticM[2][0] + statisticM[2][1] + statisticM[2][2]
+    sizes = [(sumK / 19) * 100, (1 - sumK / 19) * 100]
+    colors = ["#04FA0C", "#FF0000"]
+
+    # Створення діаграми
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, colors=colors, autopct="%1.1f%%", startangle=90)
+    ax.axis("equal")
+
+    # Запис у пам’ять
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+
+    # Обгортання в BufferedInputFile
+    photo = BufferedInputFile(buffer.read(), filename="chart.png")
+
+    # Надсилання
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=photo,
+        caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[2][0]} / 7\nТиждень 2: {statisticM[2][1]} / 7\nТиждень 3: {statisticM[2][2]} / 5",
+    )
+
+    sumI = statisticM[3][0] + statisticM[3][1] + statisticM[3][2]
+    sizes = [(sumI / 18) * 100, (1 - sumI / 18) * 100]
+    colors = ["#04FA0C", "#FF0000"]
+
+    # Створення діаграми
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, colors=colors, autopct="%1.1f%%", startangle=90)
+    ax.axis("equal")
+
+    # Запис у пам’ять
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+
+    # Обгортання в BufferedInputFile
+    photo = BufferedInputFile(buffer.read(), filename="chart.png")
+
+    # Надсилання
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=photo,
+        caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[3][0]} / 6\nТиждень 2: {statisticM[3][1]} / 6\nТиждень 3: {statisticM[3][2]} / 6",
+    )
+
+    sumF = statisticM[4][0]
+    sizes = [(sumF / 7) * 100, (1 - sumF / 7) * 100]
+    colors = ["#04FA0C", "#FF0000"]
+
+    # Створення діаграми
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, colors=colors, autopct="%1.1f%%", startangle=90)
+    ax.axis("equal")
+
+    # Запис у пам’ять
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+
+    # Обгортання в BufferedInputFile
+    photo = BufferedInputFile(buffer.read(), filename="chart.png")
+
+    # Надсилання
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=photo,
+        caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[4][0]} / 7",
     )
 
 
 @router.message(Command("menu"))
 async def start(message: Message, state: FSMContext):
-    data = await state.get_data()
-    go = data.get("go", [])
-    if go != True:
+    data = await state.get_data() or {}
+    # go = data.get("go", [])
+    if "go" in data:
+        pass
+    else:
+        print("\n\n\n\n\nHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH\n\n\n\n")
         await state.update_data(
+            statisticM=[[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0]],
             ends=0,
+            dzM=[],
+            indexM=[0],
+            indexWeekM=[0, 0],
             go=True,
             kof=[0],
             les=[],
             num=[],
             way=[],
+            dzС=[],
+            Cursnum=[],
+            Cursway=[],
+            Cursles=[],
+            Curskof=[0],
+            Cursends=0,
+            indexC=[0],
             explat=[],
             imgCr=[],
             marafonskey0=[
@@ -634,6 +1454,51 @@ async def start(message: Message, state: FSMContext):
                 "Урок 7. Іграшка у техніці декупаж",
                 "Повернутися до тижнів",
             ],
+            Curskey0=[
+                "Розвиток креативності",
+                "Фізика",
+                "Програмування",
+                "Повернутися до головного меню",
+            ],
+            task0=[
+                "Заняття 1",
+                "Заняття 2",
+                "Заняття 3",
+                "Заняття 4",
+                "Заняття 5",
+                "Заняття 6",
+                "Заняття 7",
+                "Заняття 8",
+                "Заняття 9",
+                "Заняття 10",
+                "Повернутися до курсів",
+            ],
+            task1=[
+                "Заняття 1",
+                "Заняття 2",
+                "Заняття 3",
+                "Заняття 4",
+                "Заняття 5",
+                "Заняття 6",
+                "Заняття 7",
+                "Заняття 8",
+                "Заняття 9",
+                "Заняття 10",
+                "Повернутися до курсів",
+            ],
+            task2=[
+                "Заняття 1",
+                "Заняття 2",
+                "Заняття 3",
+                "Заняття 4",
+                "Заняття 5",
+                "Заняття 6",
+                "Заняття 7",
+                "Заняття 8",
+                "Заняття 9",
+                "Заняття 10",
+                "Повернутися до курсів",
+            ],
         )
     await message.answer("Обирайте марафон чи курс", reply_markup=main)
 
@@ -641,6 +1506,9 @@ async def start(message: Message, state: FSMContext):
 @router.message(F.text == "Повернутися до головного меню")
 async def start(message: Message):
     await message.answer("Обирайте марафон чи курс", reply_markup=main)
+
+
+# Marafophons
 
 
 @router.message(F.text.in_(["Марафони", "Повернутися до марафонів"]))
@@ -654,7 +1522,9 @@ async def Task(message: Message, state: FSMContext):
         resize_keyboard=True,
     )
     await message.answer(
-        "Обирай, будь ласка, марафон, який тебе зацікавив", reply_markup=lessonKeyboard
+        "<b>Структура марафонів</b>\n\nКожен наш марафон має свою структуру, щоб тобі було зручно навчатись і все було по кроках\n\nЗазвичай марафон триває три тижні - ти поступово проходиш нові теми, отримуєш підтримку й бачиш свій прогрес.\nА от новорічний марафон - особливий 🎄, він триває лише один тиждень, але наповнений святковим настроєм і цікавими завданнями!\n\nНа початку кожного марафону ти отримуєш теоретичну частину - коротке відео з поясненнями та текстовий документ із основними матеріалами.\nПісля цього можеш натиснути кнопку «Отримати домашнє завдання», щоб відкрити свої завдання.\nА коли все зробиш - натисни «Перевірити себе», і система покаже тести, щоб ти міг переконатися, що все зрозумів 💪\n\n✨ Обирай марафон, який тебе зацікавив, - і вперед до нових знань!",
+        reply_markup=lessonKeyboard,
+        parse_mode="HTML",
     )
 
 
@@ -811,7 +1681,6 @@ async def Week(message: Message, state: FSMContext):
         data = await state.get_data()
         way = data.get("way", [])
         keyboard_name = f"leson{way[0]}"
-
     elif index == 1:
         data = await state.get_data()
         way = data.get("way", [])
@@ -844,12 +1713,14 @@ async def Week(message: Message, state: FSMContext):
                 "Урок 6",
                 "Урок 7",
                 "Наступний урок",
+                "Перейти на наступний тиждень",
             ]
         )
     )
 )
-async def Lesson(message: Message, state: FSMContext):
+async def LessonMAR(message: Message, state: FSMContext):
     data = await state.get_data()
+    print("Hello:)")
     kof = data.get("kof", [])
     les = data.get("les", [])
     way = data.get("way", [])
@@ -865,13 +1736,34 @@ async def Lesson(message: Message, state: FSMContext):
     if len(way) != 0:
         # num.append(way[0])
         # num.append(way[1])
+        data = await state.get_data()
+        indexM = data.get("indexM", [])
         for i in lessons:
             if i == str(message.text[:6]):
-                index = lessons.index(i)
+                if i == "Наступ":
+                    indexM[0] = int(indexM[0]) + 1
+                    next_or_no_next = 1
+                    next_w_or_no_next_w = 0
+                elif i == "Перейт":
+                    indexM[0] = 0
+                    next_or_no_next = 1
+                    next_w_or_no_next_w = 1
+                else:
+                    indexM[0] = lessons.index(i)
+                    next_or_no_next = 0
+                    next_w_or_no_next_w = 0
         # num.append(index)
         data = await state.get_data()
         way = data.get("way", [])
-        await state.update_data(num=[way[0], way[1], index])
+        indexWeekM = data.get("indexWeekM", [])
+        if next_w_or_no_next_w == 0:
+            await state.update_data(num=[way[0], way[1], indexM[0]])
+            print(f"way:{way[0]}")
+            indexWeekM[0] = int(way[0])
+            indexWeekM[1] = int(way[1]) + 1
+        else:
+            await state.update_data(num=[indexWeekM[0], indexWeekM[1], indexM[0]])
+        await state.update_data(indexWeekM=indexWeekM)
     await state.update_data(les=[])
     # data = await state.get_data()
     # les = data.get("les", [])
@@ -880,15 +1772,60 @@ async def Lesson(message: Message, state: FSMContext):
     # les.append(index)
     data = await state.get_data()
     way = data.get("way", [])
-    await state.update_data(les=[way[0], way[1], index])
+    change_reply_murkup_or_not = 0
+    if next_w_or_no_next_w == 0:
+        await state.update_data(les=[way[0], way[1], indexM[0]])
+    else:
+        await state.update_data(les=[indexWeekM[0], indexWeekM[1], indexM[0]])
+        num = data.get("num", [])
+
+        if num[1] == 0:
+            keyboard_name = f"leson{num[0]}"
+        elif num[1] == 1:
+            keyboard_name = f"lesonForWeekSecond{num[0]}"
+        else:
+            keyboard_name = f"lesonForWeekThird{num[0]}"
+
+        data = await state.get_data()
+        week = data.get(keyboard_name, [])
+        lessonKeyboard = ReplyKeyboardMarkup(
+            keyboard=[[KeyboardButton(text=lesson)] for lesson in week],
+            resize_keyboard=True,
+        )
+        change_reply_murkup_or_not = 1
+
+    await state.update_data(indexM=indexM)
     data = await state.get_data()
     num = data.get("num", [])
+
     lesson = LESSONS[int(num[0])]
     week = lesson[f"week_{int(num[1])}"]
     tesks = week[f"tesks_{int(num[2])}"]
     image = FSInputFile(tesks["image"])
     caption = f"<b>{tesks['text']}</b>"
-    await message.answer_photo(photo=image, caption=caption, parse_mode="HTML")
+    if change_reply_murkup_or_not == 0:
+        if next_or_no_next == 0:
+            await message.answer_photo(photo=image, caption=caption, parse_mode="HTML")
+        else:
+            await bot.send_photo(
+                chat_id=message.chat.id, photo=image, caption=caption, parse_mode="HTML"
+            )
+    else:
+        if next_or_no_next == 0:
+            await message.answer_photo(
+                photo=image,
+                caption=caption,
+                parse_mode="HTML",
+                reply_markup=lessonKeyboard,
+            )
+        else:
+            await bot.send_photo(
+                chat_id=message.chat.id,
+                photo=image,
+                caption=caption,
+                parse_mode="HTML",
+                reply_markup=lessonKeyboard,
+            )
     textVideo = tesks["textVideo"]
     button_text = tesks["button_text"]
     video_url = tesks["video_url"]
@@ -899,281 +1836,271 @@ async def Lesson(message: Message, state: FSMContext):
                 [InlineKeyboardButton(text=f"{button_text}", url=f"{video_url}")]
             ]
         )
-        await message.answer(
-            text,
-            reply_markup=keyboard,
-            parse_mode="HTML",
-            disable_web_page_preview=False,
-        )
+        if next_or_no_next == 0:
+            await message.answer(
+                text,
+                reply_markup=keyboard,
+                parse_mode="HTML",
+                disable_web_page_preview=False,
+            )
+        else:
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text=text,
+                reply_markup=keyboard,
+                parse_mode="HTML",
+                disable_web_page_preview=False,
+            )
 
     document = tesks["docs"]
     caption = tesks["textDocs"]
     text = f'<a href="{document}">{caption}</a>'
     if document != "0":
-        await message.answer(
-            text,
-            parse_mode="HTML",
-            disable_web_page_preview=False,
-        )
-    dz = tesks["dz"]
+        if next_or_no_next == 0:
+            await message.answer(
+                text,
+                parse_mode="HTML",
+                disable_web_page_preview=False,
+            )
+        else:
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text=text,
+                parse_mode="HTML",
+                disable_web_page_preview=False,
+            )
+    data = await state.get_data()
+    dzM = data.get("dzM", [])
+    dzM = tesks
+    await state.update_data(dzM=dzM)
+
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=f"Дз зробив!", callback_data="Молодець! Так тримати!"
+                    text=f"Отримати домашнє завдання", callback_data="dzMM"
                 )
             ]
         ]
     )
-    if "addDzPr" in tesks:
-        video = FSInputFile(tesks["addDzPr"])
-        await message.answer_document(
-            document=video,
-            parse_mode="HTML",
+    if next_or_no_next == 0:
+        await message.answer(
+            text="Настав час закріпити знання! Натисни кнопку, щоб отримати домашнє завдання 📚",
+            reply_markup=keyboard,
         )
-    videoExp = tesks["videoExp"]
-    imageexp = FSInputFile(tesks["imgExp"])
-    if tesks["imgExp"] == "0":
-        if tesks["Cite"] == "0":
-            try:
-                if videoExp != "0":
-                    video = FSInputFile(videoExp)
-                    await message.answer_video(
-                        video,
-                        caption=dz,
-                        disable_notification=True,
-                        parse_mode="HTML",
-                    )
-                else:
-                    await message.answer(
-                        dz,
-                        parse_mode="HTML",
-                    )
-            except TelegramBadRequest as e:
-                if "caption is too long" in str(e):
-                    await message.answer(
-                        dz,
-                        parse_mode="HTML",
-                    )
-                    await message.answer_video(
-                        video,
-                        disable_notification=True,
-                    )
-                else:
-                    raise e
-        else:
-            text = f"{dz}"
-            await message.answer(
-                text,
-                disable_web_page_preview=False,
-                parse_mode="HTML",
-            )
     else:
-        try:
-            await message.answer_photo(
-                photo=imageexp,
-                caption=dz,
-                parse_mode="HTML",
-            )
-        except TelegramBadRequest as e:
-            if "caption is too long" in str(e):
-                await message.answer(
-                    dz,
-                    parse_mode="HTML",
-                )
-                await message.answer_photo(
-                    photo=imageexp,
-                )
-            else:
-                raise e
-    if "docDz" in tesks:
-        video = FSInputFile(tesks["docDz"])
-        await message.answer_document(
-            document=video,
-            caption='<b>Зроби додаткове завдання "Таблиця цінностей"</b>',
-            parse_mode="HTML",
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="Настав час закріпити знання! Натисни кнопку, щоб отримати домашнє завдання 📚",
+            reply_markup=keyboard,
         )
-    if "docDzn" in tesks:
-        await message.answer(
-            text=tesks["docDzn"],
-            parse_mode="HTML",
-        )
-    k = 1
-    for i in tesks["test"]:
-        if k == 1:
-            await message.answer(text="Перевір себе!", parse_mode="HTML")
-        test = tesks["test"][f"test_{k}"]
-        question = test["question"]
-        correct_option_id = test["correct_index"]
-        explanation = test["explanation"]
-        options = []
-        m = 0
-        for n in test["options"]:
-            options.append(test["options"][m])
-            m += 1
-        image = FSInputFile(test["img"])
-        if str(test["img"]) != "0":
-            await message.answer_photo(photo=image)
-        if "music" in test:
-            if test["music"] != "0":
-                video = FSInputFile(test["music"])
 
-                await message.answer_audio(
-                    audio=video, caption="Послухай цей фрагмент музики:"
-                )
-        if str(explanation) == "0":
-            if "imgCr" in test:
-                await state.update_data(explat=[])
-                await state.update_data(imgCr=[])
-                data = await state.get_data()
-                explat = data.get("explat", [])
-                explat.append(test["dop"])
-                await state.update_data(explat=explat)
-                data = await state.get_data()
-                imgCr = data.get("imgCr", [])
-                imgCr.append(test["imgCr"])
-                await state.update_data(imgCr=imgCr)
-                keyboard = InlineKeyboardMarkup(
-                    inline_keyboard=[
-                        [
-                            InlineKeyboardButton(
-                                text="Отримати пояснення до завдання",
-                                callback_data="explation",
-                            )
-                        ]
-                    ]
-                )
-                await message.answer_poll(
-                    question=question,
-                    options=options,
-                    is_anonymous=False,
-                    type="quiz",
-                    correct_option_id=correct_option_id,
-                    reply_markup=keyboard,
-                )
-            else:
-                await message.answer_poll(
-                    question=question,
-                    options=options,
-                    is_anonymous=False,
-                    type="quiz",
-                    correct_option_id=correct_option_id,
-                )
-        else:
-            await message.answer_poll(
-                question=question,
-                options=options,
-                is_anonymous=False,
-                type="quiz",
-                correct_option_id=correct_option_id,
-                explanation=explanation,
-            )
-        k += 1
-    if "addDz" in tesks:
-        text = tesks["addDz"]
+
+# Curs
+
+
+@router.message(F.text.in_(["Курси", "Повернутися до курсів"]))
+async def Task(message: Message, state: FSMContext):
+    await state.update_data(Cursnum=[])
+    await state.update_data(Cursway=[])
+    data = await state.get_data()
+    curskey = data.get("Curskey0", [])
+    lessonKeyboard = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text=lesson)] for lesson in curskey],
+        resize_keyboard=True,
+    )
+    await message.answer(
+        "<b>Структура курсів</b>\n\nКожен наш курс має свою структуру, створену так, щоб навчання було зручним і послідовним 🎓\n\nУ кожному курсі є 10 занять, і в кожному з них - кілька відео, поділених на частини.\nТак ти можеш легко обрати саме ту тему або момент, який хочеш переглянути ще раз 💡\n\nПісля перегляду матеріалів натисни кнопку «Отримати домашнє завдання», щоб відкрити практичні завдання - вони допоможуть закріпити нові знання та застосувати їх на практиці 💪\n\n✨ Обирай, будь ласка, курс, який тебе зацікавив!",
+        reply_markup=lessonKeyboard,
+        parse_mode="HTML",
+    )
+
+
+@router.message(
+    F.text.startswith(
+        tuple(
+            [
+                "Розвиток креативності",
+                "Фізика",
+                "Програмування",
+                "Повернутися до курсів",
+            ]
+        )
+    )
+)
+async def Marafons(message: Message, state: FSMContext):
+    if "✅" in message.text:
+        mes = message.text[:-2]
+    else:
+        mes = message.text
+    for i in Curs:
+        if i == str(mes):
+            index = Curs.index(i)
+    data = await state.get_data()
+    Cursway = data.get("Cursway", [])
+    Cursway.append(index)
+    await state.update_data(Cursway=Cursway)
+    if index == 0:
         await message.answer(
-            text,
-            disable_web_page_preview=False,
+            "<b>Привіт-привіт!</b> 😄\nВітаємо тебе на курсі з розвитку креативності.\n\nУ цьому каналі ти отримуватимеш відеолекції та завдання від авторів курсу з освітнього центру FivOne. В кінці кожного відео буде домашнє завдання - на розвиток креативності.\n\nТи можеш переглядати відео та виконувати завдання у будь-який зручний для тебе час.  \n\nОтже, <b>3-2-1 починаємо мислити нестандартно</b> ☀️",
+            "<b>Привіт-привіт! </b>😄\nВітаємо тебе на Курсі з розвитку креативності.\n\nУ цьому каналі ти отримуватимеш відеолекції та завдання від авторів марафону з освітнього центру FivOne. В кінці кожного відео буде домашнє завдання.\n\nТи можеш переглядати відео та виконувати завдання у будь-який зручний для тебе час. \n\nОтже, <b>3-2-1 полеееетіли</b> 🚀",
             parse_mode="HTML",
         )
-    if "addDzn" in tesks:
-        text = tesks["addDzn"]
+    elif index == 1:
         await message.answer(
-            text,
-            disable_web_page_preview=False,
+            "<b>Привіт-привіт! </b>😄\nВітаємо тебе на курсі з фізики.\n\nУ цьому каналі ти отримуватимеш відеолекції та завдання від авторів курсу з освітнього центру FivOne. В кінці кожного відео буде домашнє завдання - експеримент або симуляція з певної теми.\n\nТи можеш переглядати відеолекції та виконувати завдання у будь-який зручний для тебе час. \n\nОтже, <b>3-2-1 полеееетіли </b>🚀",
             parse_mode="HTML",
         )
-    if "addVid" in tesks:
+    elif index == 2:
+        await message.answer(
+            "<b>Привіт-привіт!</b> 😄\nВітаємо тебе на курсі з Програмування.\n\nУ цьому каналі ти отримуватимеш відеолекції та завдання від авторів курсу з освітнього центру FivOne. В кінці кожного відео буде домашнє завдання.\n\nТи можеш переглядати відео та виконувати завдання у будь-який зручний для тебе час.  \n\nОтже, <b>3-2-1 Побігли-ии-иии!</b>",
+            parse_mode="HTML",
+        )
+    else:
+        pass
+    data = await state.get_data()
+    Cursway = data.get("Cursway", [])
+    if Cursway[0] == 3:
+        data = await state.get_data()
+        Cursles = data.get("Cursles", [])
+        await state.update_data(Cursway=[])
+        t = Cursles[0]
+        await state.update_data(Cursles=[])
+        data = await state.get_data()
+        Cursway = data.get("Cursway", [])
+        Cursway.append(t)
+        await state.update_data(Cursway=Cursway)
+    else:
+        t = Cursway[0]
+        await state.update_data(Cursway=[])
+        data = await state.get_data()
+        Cursway = data.get("Cursway", [])
+        Cursway.append(t)
+        await state.update_data(Cursway=Cursway)
+    await state.update_data(Curskof=[0])
+    data = await state.get_data()
+    Cursf = f"task{t}"
+    Cursweek = data.get(Cursf, [])
+    lessonKeyboard = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text=lesson)] for lesson in Cursweek],
+        resize_keyboard=True,
+    )
+    await message.answer("Обери заняття", reply_markup=lessonKeyboard)
+
+
+@router.message(
+    F.text.startswith(
+        tuple(
+            [
+                "Заняття 1",
+                "Заняття 2",
+                "Заняття 3",
+                "Заняття 4",
+                "Заняття 5",
+                "Заняття 6",
+                "Заняття 7",
+                "Заняття 8",
+                "Заняття 9",
+                "Заняття 10",
+                "Наступне заняття",
+            ]
+        )
+    )
+)
+async def LessonCurs(message: Message, state: FSMContext):
+    data = await state.get_data()
+    Curskof = data.get("Curskof", [])
+    Cursles = data.get("Cursles", [])
+    Cursway = data.get("Cursway", [])
+    if Curskof[0] == 1:
+        await state.update_data(Cursway=[])
+        data = await state.get_data()
+        Cursway = data.get("Cursway", [])
+        Cursway.append(Cursles[0])
+        # Cursway.append(les[1])
+        await state.update_data(Cursway=Cursway)
+        data = await state.get_data()
+        Cursway = data.get("Cursway", [])
+    data = await state.get_data()
+    indexC = data.get("indexC", [])
+    if len(Cursway) != 0:
+        # num.append(way[0])
+        # num.append(way[1])
+        data = await state.get_data()
+        indexC = data.get("indexC", [])
+        for i in tasks:
+            if i == str(message.text[:10]):
+                if i == "Наступне з":
+                    indexC[0] = int(indexC[0]) + 1
+                    next_or_no_next = 1
+                else:
+                    indexC[0] = tasks.index(i)
+                    next_or_no_next = 0
+
+        # num.append(index)
+        data = await state.get_data()
+        Cursway = data.get("Cursway", [])
+        await state.update_data(Cursnum=[Cursway[0], indexC[0]])
+    await state.update_data(Cursles=[])
+    data = await state.get_data()
+    Cursway = data.get("Cursway", [])
+    await state.update_data(Cursles=[Cursway[0], indexC[0]])
+    await state.update_data(indexC=indexC)
+    data = await state.get_data()
+    Cursnum = data.get("Cursnum", [])
+    lesson = CURS[int(Cursnum[0])]
+    # week = lesson[f"week_{int(num[1])}"]
+    tesks = lesson[f"tesks_{int(Cursnum[1])}"]
+    data = await state.get_data()
+    dzC = data.get("dzC", [])
+    dzC = tesks
+    await state.update_data(dzC=dzC)
+
+    t = tesks["text"]
+
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text=t,
+        parse_mode="HTML",
+        disable_web_page_preview=False,
+    )
+
+    for i in range(0, int(tesks["amount_of_video"])):
+        textVideo = tesks[f"textVideo{i}"]
+        video_url = tesks[f"video_url{i}"]
+
+        text = f'<a href="{video_url}">{textVideo}\n#відео 👇</a>'
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text="🎥 Завантажити відео",
-                        url=tesks["addVid"],
+                        text=f"Дивитись відео. {textVideo}", url=f"{video_url}"
                     )
                 ]
             ]
         )
-        text = f"Відеопояснення до завдання другого тижня на мові С++ https://www.youtube.com/watch?v=njBJMryXkAU"
-        await message.answer(
-            text=text,
-            parse_mode="HTML",
-        )
 
-    text = "Перевір себе!"
-    if tesks["addVideo"] != "0":
-        text = f'<a href="{tesks["addVideo"]}">#Додаткове відео 👇</a>'
-        button_text = "Переглянути відео"
-        keyboard = InlineKeyboardMarkup(
-            inline_keyboard=[
-                [InlineKeyboardButton(text=f"{button_text}", url=f"{video_url}")]
-            ]
-        )
-        await message.answer(
-            text,
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=text,
             reply_markup=keyboard,
             parse_mode="HTML",
             disable_web_page_preview=False,
         )
-    data = await state.get_data()
-    way = data.get("way", [])
-    if int(way[1]) == 0:
-        keyboard = InlineKeyboardMarkup(
-            inline_keyboard=[
-                [InlineKeyboardButton(text=f"Обрати інший урок", callback_data="next")]
-            ]
-        )
-    elif int(way[1]) == 1:
-        keyboard = InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    InlineKeyboardButton(
-                        text=f"Обрати інший урок", callback_data="nextsecond"
-                    )
-                ]
-            ]
-        )
-    else:
-        keyboard = InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    InlineKeyboardButton(
-                        text=f"Обрати інший урок", callback_data="nextthird"
-                    )
-                ]
-            ]
-        )
-    await state.update_data(kof=[1])
-    if tesks["End"] == "0":
-        await state.update_data(ends=0)
 
-        await state.update_data(num=[])
-        text = "Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
-    elif tesks["End"] == "1":
-        await state.update_data(ends=1)
-        await state.update_data(num=[])
-        data = await state.get_data()
-        way = data.get("way", [])
-        p = way[0]
-        await state.update_data(way=[])
-        data = await state.get_data()
-        way = data.get("way", [])
-        way.append(p)
-        await state.update_data(way=way)
-        text = "Це був останній урок цього тижня! Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
-    else:
-        await state.update_data(ends=2)
-        text = "Це був останній урок цього марафону! Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
-        await state.update_data(num=[])
-        await state.update_data(way=[])
-    button_text = "Позначити як виконаний ✅"
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=f"{button_text}", callback_data="Done")]
+            [
+                InlineKeyboardButton(
+                    text=f"Отримати домашнє завдання", callback_data="dzСС"
+                )
+            ]
         ]
     )
-    await message.answer(
-        text=text,
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text="Настав час закріпити знання! Натисни кнопку, щоб отримати домашнє завдання 📚",
         reply_markup=keyboard,
     )
+
 
