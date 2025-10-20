@@ -4,10 +4,13 @@ from aiogram import Bot, Dispatcher, F
 from app.handlers import router
 from aiogram.fsm.storage.memory import MemoryStorage
 from config import Config
+from aiogram_sqlite_storage.sqlitestore import SQLStorage
+from aiogram import Router
 
 Config.load()
+storage = SQLStorage("fsm_db.db", serializing_method="json")
 bot = Bot(token=Config.BOT_TOKEN)
-dp = Dispatcher(storage=MemoryStorage())
+dp = Dispatcher(storage=storage)
 
 
 async def main():
@@ -18,6 +21,7 @@ async def main():
 
 if __name__ == "__main__":
     try:
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         asyncio.run(main())
     except KeyboardInterrupt:
         print("Бот вимкнено!")
