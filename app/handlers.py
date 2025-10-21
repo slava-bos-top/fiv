@@ -2064,27 +2064,33 @@ async def LessonCurs(message: Message, state: FSMContext):
         disable_web_page_preview=False,
     )
 
-    for i in range(0, int(tesks["amount_of_video"])):
-        textVideo = tesks[f"textVideo{i}"]
-        video_url = tesks[f"video_url{i}"]
+    if int(tesks["amount_of_video"]) != 0:
+        for i in range(0, int(tesks["amount_of_video"])):
+            textVideo = tesks[f"textVideo{i}"]
+            video_url = tesks[f"video_url{i}"]
 
-        text = f'<a href="{video_url}">{textVideo}\n#відео 👇</a>'
-        keyboard = InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    InlineKeyboardButton(
-                        text=f"Дивитись відео. {textVideo}", url=f"{video_url}"
-                    )
+            text = f'<a href="{video_url}">{textVideo}\n#відео 👇</a>'
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text=f"Дивитись відео. {textVideo}", url=f"{video_url}"
+                        )
+                    ]
                 ]
-            ]
-        )
+            )
 
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text=text,
+                reply_markup=keyboard,
+                parse_mode="HTML",
+                disable_web_page_preview=False,
+            )
+    else:
         await bot.send_message(
             chat_id=message.chat.id,
-            text=text,
-            reply_markup=keyboard,
-            parse_mode="HTML",
-            disable_web_page_preview=False,
+            text="На жаль, відео поки що недоступне.",
         )
 
     keyboard = InlineKeyboardMarkup(
