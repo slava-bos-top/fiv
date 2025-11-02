@@ -976,7 +976,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             text = "Молодець! Так тримати! Обирай наступний тиждень! Далі - ще цікавіше! 🙌"
         else:
             text = "Молодець! Так тримати! Обирай інший марафон або курс! Далі - ще цікавіше! 🙌"
-        await callback.message.answer(text=text)
+        await callback.message.answer(text=text, reply_markup=lessonKeyboard)
     except ValueError as v:
         if "None is not in list" in str(v):
             await callback.message.answer(
