@@ -1112,6 +1112,9 @@ async def register_city(message: Message, state: FSMContext):
     first_name = data.get("first_name", [""])[0]
     last_name = data.get("last_name", [""])[0]
 
+    print(number)
+    print(str(num))
+
     if number == str(num):
         ena = 0
         phone = number
