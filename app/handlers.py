@@ -917,7 +917,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
 
             data = await state.get_data()
             l = data.get(leson_list_name, [])
-            l[Cursles[1]] = f"{l[Cursles[2]]} ✅"
+            l[Cursles[1]] = f"{l[Cursles[1]]} ✅"
             await state.update_data(**{leson_list_name: l})
         data = await state.get_data()
         leson_list = data.get(leson_list_name, [])
@@ -2150,5 +2150,3 @@ async def LessonCurs(message: Message, state: FSMContext):
         text="Настав час закріпити знання! Натисни кнопку, щоб отримати домашнє завдання 📚",
         reply_markup=keyboard,
     )
-
-
