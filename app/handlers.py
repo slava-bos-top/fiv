@@ -1137,7 +1137,7 @@ async def register_city(message: Message, state: FSMContext):
             ena,
             photo_url,
         ]
-        user_data += [0] * 99
+        user_data += [0] * 120
         sheet.append_row(user_data)
         await message.answer(
             "Номер підтверджено. Вітаємо в клубі розумників та розумниць! 😉"
@@ -1431,7 +1431,7 @@ async def regular_start_handler(message: Message, state: FSMContext):
         ]
     )
     await message.answer(
-        "Також спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/statistics (якщо ще не авторизувався - саме час це зробити😉 для цього перейди та авторизуйся на сайті https://fiv-one-site.vercel.app/).",
+        "Також спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/statistics.",
         reply_markup=keyboard,
     )
     await message.answer(
