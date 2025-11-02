@@ -1176,6 +1176,13 @@ async def regular_start_handler(message: Message, state: FSMContext):
         reply_markup=ReplyKeyboardRemove(),
     )
 
+@router.message(F.text == "Про нас")
+async def about_us(message: Message, state: FSMContext):
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text="🎓 <b>Привіт! Ми — команда FivOne!</b>\n\nМи віримо, що навчання може бути цікавим, легким і надихаючим. Саме тому створили цього телеграм-бота — твого персонального помічника, який крок за кроком проведе тебе через усі теми та допоможе розкрити свій потенціал 🚀\n\n📚 <b>Тут ти знайдеш:</b>\n✨ Марафони з фізики, хімії, програмування, креативності та навіть новорічний 🎄\n💡 Курси з фізики, програмування й розвитку креативного мислення\n\nУсе, що потрібно — просто обрати напрям і почати!\nНавчайся у зручному форматі, у своєму темпі, із натхненням 💫",
+        parse_mode="HTML",
+    )
 
 @router.message(F.text == "Прогрес у курсах")
 async def progress_curs(message: Message, state: FSMContext):
