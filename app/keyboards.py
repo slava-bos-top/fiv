@@ -26,3 +26,12 @@ reg = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True,
 )
+
+progress = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Прогрес у марафонах")],
+        [KeyboardButton(text="Прогрес у курсах")],
+        [KeyboardButton(text="Повернутися до головного меню")],
+    ],
+    resize_keyboard=True,
+)
