@@ -122,9 +122,9 @@ marafons = [
     "Повернутися до тижнів",
 ]
 Curs = [
-    "Курс з розвитку креативності",
-    "Курс з фізики",
-    "Курс з програмування",
+    "Курс. Розвиток креативності",
+    "Курс. Фізика навколо нас",
+    "Курс. Старт програмування. Мова С++",
     "Повернутися до курсів",
 ]
 weeks = ["Тиждень 1", "Тиждень 2", "Тиждень 3"]
@@ -159,6 +159,32 @@ tasks = [
 
 # Curs
 
+@router.callback_query(F.data == "Exp")
+async def dz(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    dzC = data.get("dzC", [])
+
+    t = dzC["explain"]
+
+    text = f'<a href="{t}">Відеопояснення до завдання 5\n#відео 👇</a>'
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=f"Дивитись відеопояснення", url=f"{t}"
+                )
+            ]
+        ]
+    )
+
+    await bot.send_message(
+        chat_id=callback.message.chat.id,
+        text=text,
+        reply_markup=keyboard,
+        parse_mode="HTML",
+        disable_web_page_preview=False,
+    )
+
 
 @router.callback_query(F.data == "refresh_tasks")
 async def handle_refresh_callback(callback: CallbackQuery, state: FSMContext):
@@ -191,12 +217,27 @@ async def dz(callback: CallbackQuery, state: FSMContext):
 
     t = dzC["task"]
 
-    await bot.send_message(
-        chat_id=callback.message.chat.id,
-        text=t,
-        parse_mode="HTML",
-        disable_web_page_preview=False,
+    keyboardExplain = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Відповідь на завдання 5", callback_data="Exp")]
+        ]
     )
+
+    if "explain" in dzC:
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=t,
+            parse_mode="HTML",
+            disable_web_page_preview=False,
+            reply_markup=keyboardExplain,
+        )
+    else:
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=t,
+            parse_mode="HTML",
+            disable_web_page_preview=False,
+        )
 
     data = await state.get_data()
     Cursway = data.get("Cursway", [])
@@ -1280,7 +1321,6 @@ async def start(message: Message, state: FSMContext):
     if "go" in data:
         pass
     else:
-        print("\n\n\n\n\nHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH\n\n\n\n")
         await state.update_data(
             statisticM=[[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0]],
             ends=0,
@@ -1455,9 +1495,9 @@ async def start(message: Message, state: FSMContext):
                 "Повернутися до тижнів",
             ],
             Curskey0=[
-                "Курс з розвитку креативності",
-                "Курс з фізики",
-                "Курс з програмування",
+                "Курс. Розвиток креативності",
+                "Курс. Фізика навколо нас",
+                "Курс. Старт програмування. Мова С++",
                 "Повернутися до курсів",
             ],
             task0=[
@@ -1720,7 +1760,6 @@ async def Week(message: Message, state: FSMContext):
 )
 async def LessonMAR(message: Message, state: FSMContext):
     data = await state.get_data()
-    print("Hello:)")
     kof = data.get("kof", [])
     les = data.get("les", [])
     way = data.get("way", [])
@@ -1758,7 +1797,6 @@ async def LessonMAR(message: Message, state: FSMContext):
         indexWeekM = data.get("indexWeekM", [])
         if next_w_or_no_next_w == 0:
             await state.update_data(num=[way[0], way[1], indexM[0]])
-            print(f"way:{way[0]}")
             indexWeekM[0] = int(way[0])
             indexWeekM[1] = int(way[1]) + 1
         else:
@@ -1920,9 +1958,9 @@ async def Task(message: Message, state: FSMContext):
     F.text.startswith(
         tuple(
             [
-                "Курс з розвитку креативності",
-                "Курс з фізики",
-                "Курс з програмування",
+                "Курс. Розвиток креативності",
+                "Курс. Фізика навколо нас",
+                "Курс. Старт програмування. Мова С++",
                 "Повернутися до курсів",
             ]
         )
