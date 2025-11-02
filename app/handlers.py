@@ -96,6 +96,7 @@ class UserProgress(StatesGroup):
     Cursends = State()
     indexC = State()
     dzC = State()
+    statisticC = State()
 
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
@@ -927,10 +928,15 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             resize_keyboard=True,
         )
 
+        data = await state.get_data()
+        statisticC = data.get("statisticC", [])
+
         g = 1
         for i in leson_list:
             if i[-1:] == "✅":
                 g += 1
+        statisticC[Cursles[0]][0] = g - 1
+        await state.update_data(statisticC=statisticC)
         week_list = []
         if int(len(leson_list)) == g:
             wek_list_name = f"Curskey0"
@@ -1171,23 +1177,92 @@ async def regular_start_handler(message: Message, state: FSMContext):
     )
 
 
-@router.message(F.text == "Твій прогрес")
-async def regular_start_handler(message: Message, state: FSMContext):
-    button_text = "Перейти до сайту"
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text=f"{button_text}",
-                    url="https://fiv-one-site.vercel.app/statistics",
-                )
-            ]
-        ]
+@router.message(F.text == "Прогрес у курсах")
+async def progress_curs(message: Message, state: FSMContext):
+    data = await state.get_data()
+    statisticC = data.get("statisticC", [])
+
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text="<b>Твій прогрес:</b>",
+        parse_mode="HTML",
     )
-    await message.answer(
-        "Також спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/statistics (якщо ще не авторизувався - саме час це зробити😉 для цього перейди та авторизуйся на сайті https://fiv-one-site.vercel.app/).",
-        reply_markup=keyboard,
+
+    labels = ["Пройдено", "Залишилось"]
+    sumF = statisticC[0][0]
+    sizes = [(sumF / 10) * 100, (1 - sumF / 10) * 100]
+    colors = ["#04FA0C", "#FF0000"]
+
+    # Створення діаграми
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, colors=colors, autopct="%1.1f%%", startangle=90)
+    ax.axis("equal")
+
+    # Запис у пам’ять
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+
+    # Обгортання в BufferedInputFile
+    photo = BufferedInputFile(buffer.read(), filename="chart.png")
+
+    # Надсилання
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=photo,
+        caption=f"📊 Твій прогрес у курсі з розвитку креативності: {statisticC[0][0]} / 10",
     )
+
+    sumC = statisticC[1][0]
+    sizes = [(sumC / 10) * 100, (1 - sumC / 10) * 100]
+    colors = ["#04FA0C", "#FF0000"]
+
+    # Створення діаграми
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, colors=colors, autopct="%1.1f%%", startangle=90)
+    ax.axis("equal")
+
+    # Запис у пам’ять
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+
+    # Обгортання в BufferedInputFile
+    photo = BufferedInputFile(buffer.read(), filename="chart.png")
+
+    # Надсилання
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=photo,
+        caption=f"📊 Твій прогрес у курсі з фізика навколо нас: {statisticC[1][0]} / 10",
+    )
+
+    sumK = statisticC[2][0]
+    sizes = [(sumK / 10) * 100, (1 - sumK / 10) * 100]
+    colors = ["#04FA0C", "#FF0000"]
+
+    # Створення діаграми
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, colors=colors, autopct="%1.1f%%", startangle=90)
+    ax.axis("equal")
+
+    # Запис у пам’ять
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+
+    # Обгортання в BufferedInputFile
+    photo = BufferedInputFile(buffer.read(), filename="chart.png")
+
+    # Надсилання
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=photo,
+        caption=f"📊 Твій прогрес у курсі з старт програмування: {statisticC[2][0]} / 10",
+    )
+
+@router.message(F.text == "Прогрес у марафонах")
+async def progress_marafons(message: Message, state: FSMContext):
     data = await state.get_data()
     statisticM = data.get("statisticM", [])
 
@@ -1318,6 +1393,28 @@ async def regular_start_handler(message: Message, state: FSMContext):
         caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[4][0]} / 7",
     )
 
+@router.message(F.text == "Твій прогрес")
+async def regular_start_handler(message: Message, state: FSMContext):
+    button_text = "Перейти до сайту"
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=f"{button_text}",
+                    url="https://fiv-one-site.vercel.app/statistics",
+                )
+            ]
+        ]
+    )
+    await message.answer(
+        "Також спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/statistics (якщо ще не авторизувався - саме час це зробити😉 для цього перейди та авторизуйся на сайті https://fiv-one-site.vercel.app/).",
+        reply_markup=keyboard,
+    )
+    await message.answer(
+        "Вибери, де ти хочеш подивитися свій прогрес: у курсах чи марафонах.",
+        reply_markup=kb.progress,
+    )
+
 
 @router.message(Command("menu"))
 async def start(message: Message, state: FSMContext):
@@ -1328,6 +1425,7 @@ async def start(message: Message, state: FSMContext):
     else:
         await state.update_data(
             statisticM=[[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0]],
+            statisticC=[[0], [0], [0]],
             ends=0,
             dzM=[],
             indexM=[0],
@@ -2150,3 +2248,4 @@ async def LessonCurs(message: Message, state: FSMContext):
         text="Настав час закріпити знання! Натисни кнопку, щоб отримати домашнє завдання 📚",
         reply_markup=keyboard,
     )
+
