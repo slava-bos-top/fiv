@@ -1059,7 +1059,9 @@ from cloudinary import uploader, config as cloudinary_config
 @router.message(StateFilter(UserProgress.numbers), F.contact)
 async def register_city(message: Message, state: FSMContext):
     await message.answer("Дані зберігаються...", reply_markup=ReplyKeyboardRemove())
-    await state.update_data(numbers=message.contact)
+    contact = message.contact
+    phone_raw = getattr(contact, "phone_number", None)
+    await state.update_data(numbers=phone_raw)
     data = await state.get_data()
     number = data.get("numbers")
 
