@@ -1137,7 +1137,6 @@ async def register_city(message: Message, state: FSMContext):
             ena,
             photo_url,
         ]
-        await state.update_data(allow=[1])
         user_data += [0] * 99
         sheet.append_row(user_data)
         await message.answer(
@@ -1156,6 +1155,7 @@ async def register_city(message: Message, state: FSMContext):
             reply_markup=ReplyKeyboardRemove(),
         )
         await state.clear()
+        await state.update_data(allow=[1])
     else:
         await message.answer(
             "Номер не співпадає з вказаним при авторизації. Автаризуйтеся через номер, на якому зареєстрований телеграм"
