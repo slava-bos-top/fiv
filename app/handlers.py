@@ -1061,7 +1061,7 @@ async def register_city(message: Message, state: FSMContext):
     await message.answer("Дані зберігаються...", reply_markup=ReplyKeyboardRemove())
     await state.update_data(numbers=message.contact)
     data = await state.get_data()
-    number = list(data["numbers"])[0][1]
+    number = data.get("numbers")
 
     # Google Sheets авторизація
     scope = [
