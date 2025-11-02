@@ -764,7 +764,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
         )
 
         data = await state.get_data()
-        statisticM = data.get(statisticM, [])
+        statisticM = data.get("statisticM", [])
         g = 1
         for i in leson_list:
             if i[-1:] == "✅":
@@ -2150,6 +2150,5 @@ async def LessonCurs(message: Message, state: FSMContext):
         text="Настав час закріпити знання! Натисни кнопку, щоб отримати домашнє завдання 📚",
         reply_markup=keyboard,
     )
-
 
 
