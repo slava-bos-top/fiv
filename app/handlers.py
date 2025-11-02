@@ -1166,13 +1166,15 @@ async def register_city(message: Message, state: FSMContext):
 @router.message(Command("start"))
 async def regular_start_handler(message: Message, state: FSMContext):
     await message.answer(
-        "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело! Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/ (якщо ще не авторизувався - саме час це зробити😉).",
+        "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело!",
     )
     data = await state.get_data() or {}
     if "allow" in data:
         pass
     else:
         await state.update_data(allow = [0])
+
+    data = await state.get_data()
     
     allow = data.get("allow", [])
     if allow[0] == 1:
@@ -2276,3 +2278,4 @@ async def LessonCurs(message: Message, state: FSMContext):
         text="Настав час закріпити знання! Натисни кнопку, щоб отримати домашнє завдання 📚",
         reply_markup=keyboard,
     )
+
