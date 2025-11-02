@@ -161,6 +161,7 @@ tasks = [
 
 # Curs
 
+
 @router.callback_query(F.data == "Exp")
 async def dz(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
@@ -171,11 +172,7 @@ async def dz(callback: CallbackQuery, state: FSMContext):
     text = f'<a href="{t}">Відеопояснення до завдання 5\n#відео 👇</a>'
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text=f"Дивитись відеопояснення", url=f"{t}"
-                )
-            ]
+            [InlineKeyboardButton(text=f"Дивитись відеопояснення", url=f"{t}")]
         ]
     )
 
@@ -979,7 +976,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             text = "Молодець! Так тримати! Обирай наступний тиждень! Далі - ще цікавіше! 🙌"
         else:
             text = "Молодець! Так тримати! Обирай інший марафон або курс! Далі - ще цікавіше! 🙌"
-        await callback.message.answer(text=text, reply_markup=lessonKeyboard)
+        await callback.message.answer(text=text)
     except ValueError as v:
         if "None is not in list" in str(v):
             await callback.message.answer(
@@ -988,7 +985,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "comfirmsignIn")
-async def homework_done_callbacks(callback: CallbackQuery):
+async def homework_done_callbacks(callback: CallbackQuery, state: FSMContext):
     scope = [
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
@@ -1013,6 +1010,7 @@ async def homework_done_callbacks(callback: CallbackQuery):
     row_values[5] = 1
 
     sheet.update(f"A{row_index}", [row_values])
+    await state.update_data(allow=[1])
     await callback.message.answer(
         "Вхід пітверджено! Натискай Меню!", reply_markup=ReplyKeyboardRemove()
     )
@@ -1148,7 +1146,6 @@ async def register_city(message: Message, state: FSMContext):
         )
         await message.answer(
             "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело! Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/statistics або в боті.",
-            reply_markup=main,
         )
         await message.answer(
             "Натискай кнопку Меню (на телефоні - три рисочки внизу зліва). Ця кнопка завжди повертатиме тебе до Головного меню. Обирай марафон чи курс, який тебе зацікавив, ознайомлюйся з матеріалами уроку, виконуй завдання та дивуй своїми новими знаннями оточуючих! Запрошуй друзів приєднатися, адже разом дізнаватися щось нове завжди цікавіше! Починаймо! \n👇",
@@ -1172,10 +1169,10 @@ async def regular_start_handler(message: Message, state: FSMContext):
     if "allow" in data:
         pass
     else:
-        await state.update_data(allow = [0])
+        await state.update_data(allow=[0])
 
     data = await state.get_data()
-    
+
     allow = data.get("allow", [])
     if allow[0] == 1:
         await bot.set_my_commands(
@@ -1193,6 +1190,7 @@ async def regular_start_handler(message: Message, state: FSMContext):
             "Щоб отримати доступ до бота, треба зареєструватись на сайті (https://fiv-one-site.vercel.app/). Після реєстрації ти зможеш спостерігати за своїм прогресом в особистому профілі на сайті або в боті.",
         )
 
+
 @router.message(F.text == "Про нас")
 async def about_us(message: Message, state: FSMContext):
     await bot.send_message(
@@ -1200,6 +1198,7 @@ async def about_us(message: Message, state: FSMContext):
         text="🎓 <b>Привіт! Ми — команда FivOne!</b>\n\nМи віримо, що навчання може бути цікавим, легким і надихаючим. Саме тому створили цей телеграм-бот — твій персональний помічник, який крок за кроком проведе тебе через усі теми та допоможе розкрити свій потенціал 🚀\n\n📚 <b>Тут ти знайдеш:</b>\n✨ Марафони з фізики, хімії, програмування, креативності та навіть новорічний 🎄\n💡 Курси з фізики, програмування й розвитку креативного мислення\n\nУсе, що потрібно — просто обрати напрям і почати!\nНавчайся у зручному форматі, у своєму темпі, із натхненням 💫",
         parse_mode="HTML",
     )
+
 
 @router.message(F.text == "Прогрес у курсах")
 async def progress_curs(message: Message, state: FSMContext):
@@ -1284,6 +1283,7 @@ async def progress_curs(message: Message, state: FSMContext):
         photo=photo,
         caption=f"📊 Твій прогрес у курсі з старт програмування: {statisticC[2][0]} / 10",
     )
+
 
 @router.message(F.text == "Прогрес у марафонах")
 async def progress_marafons(message: Message, state: FSMContext):
@@ -1416,6 +1416,7 @@ async def progress_marafons(message: Message, state: FSMContext):
         photo=photo,
         caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[4][0]} / 7",
     )
+
 
 @router.message(F.text == "Твій прогрес")
 async def regular_start_handler(message: Message, state: FSMContext):
