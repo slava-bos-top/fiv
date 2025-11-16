@@ -7,7 +7,7 @@ from config import Config
 from aiogram_sqlite_storage.sqlitestore import SQLStorage
 from aiogram import Router
 
-from aiogram.fsm.storage.postgresql import PostgreSQLStorage
+from aiogram3_storage_postgresql import PostgreSQLStorage
 
 storage = PostgreSQLStorage.from_url(Config.DATABASE_URL)
 
