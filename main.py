@@ -9,7 +9,7 @@ from aiogram import Router
 
 from aiogram.fsm.storage.postgresql import PostgreSQLStorage
 
-storage = PostgreSQLStorage.from_url("DATABASE_URL")
+storage = PostgreSQLStorage.from_url(Config.DATABASE_URL)
 
 Config.load()
 # storage = SQLStorage("fsm_db.db", serializing_method="json")
