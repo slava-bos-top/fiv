@@ -7,8 +7,12 @@ from config import Config
 from aiogram_sqlite_storage.sqlitestore import SQLStorage
 from aiogram import Router
 
+from aiogram.fsm.storage.postgresql import PostgreSQLStorage
+
+storage = PostgreSQLStorage.from_url("DATABASE_URL")
+
 Config.load()
-storage = SQLStorage("fsm_db.db", serializing_method="json")
+# storage = SQLStorage("fsm_db.db", serializing_method="json")
 bot = Bot(token=Config.BOT_TOKEN)
 dp = Dispatcher(storage=storage)
 
