@@ -7,12 +7,12 @@ from config import Config
 from aiogram_sqlite_storage.sqlitestore import SQLStorage
 from aiogram import Router
 
-from aiogram.fsm.storage.postgresql import PostgresStorage
+from aiogram_postgres import PostgresStorage
 
 # Підключення до твоєї бази даних
 storage = PostgresStorage(
     dsn=Config.DATABASE_URL,
-    table_name="aiogram_fsm"  # можна змінити назву таблиці
+    table_name="aiogram_fsm"
 )
 
 Config.load()
