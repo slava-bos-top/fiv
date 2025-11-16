@@ -12,4 +12,3 @@ google-api-python-client
 cloudinary
 matplotlib
 aiogram-sqlite-storage
-git+https://github.com/Tishka17/aiogram3-storage-postgresql.git
