@@ -7,16 +7,8 @@ from config import Config
 from aiogram_sqlite_storage.sqlitestore import SQLStorage
 from aiogram import Router
 
-from aiogram_postgres import PostgresStorage
-
-# Підключення до твоєї бази даних
-storage = PostgresStorage(
-    dsn=Config.DATABASE_URL,
-    table_name="aiogram_fsm"
-)
-
 Config.load()
-# storage = SQLStorage("fsm_db.db", serializing_method="json")
+storage = SQLStorage("fsm_db.db", serializing_method="json")
 bot = Bot(token=Config.BOT_TOKEN)
 dp = Dispatcher(storage=storage)
 
