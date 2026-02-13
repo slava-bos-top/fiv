@@ -7,6 +7,8 @@ from config import Config
 from aiogram_sqlite_storage.sqlitestore import SQLStorage
 from aiogram import Router
 
+Config.load() 
+
 # storage = SQLStorage("fsm_db.db", serializing_method="json")
 from redis.asyncio import Redis
 from aiogram.fsm.storage.redis import RedisStorage
