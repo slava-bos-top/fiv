@@ -1071,7 +1071,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
     except ValueError as v:
         if "None is not in list" in str(v):
             await callback.message.answer(
-                "Щоб зберігати свій прогрес зареєструйся на сайті (https://fiv-one-site.vercel.app/). Після реєстрації зможеш спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті або в боті.",
+                "Щоб зберігати свій прогрес зареєструйся на сайті (https://fivone.education/). Після реєстрації зможеш спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті або в боті.",
             )
 
 
@@ -1197,7 +1197,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
     except ValueError as v:
         if "None is not in list" in str(v):
             await callback.message.answer(
-                "Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/ (якщо ще не авторизувався - саме час це зробити😉).",
+                "Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fivone.education/ (якщо ще не авторизувався - саме час це зробити😉).",
             )
 
 
@@ -1364,7 +1364,7 @@ async def register_city(message: Message, state: FSMContext):
             scope=BotCommandScopeChat(chat_id=message.chat.id),
         )
         await message.answer(
-            "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело! Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/statistics або в боті.",
+            "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело! Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fivone.education/statistics або в боті.",
         )
         await message.answer(
             "Натискай кнопку Меню (на телефоні - три рисочки внизу зліва). Ця кнопка завжди повертатиме тебе до Головного меню. Обирай марафон чи курс, який тебе зацікавив, ознайомлюйся з матеріалами уроку, виконуй завдання та дивуй своїми новими знаннями оточуючих! Запрошуй друзів приєднатися, адже разом дізнаватися щось нове завжди цікавіше! Починаймо! \n👇",
@@ -1408,7 +1408,7 @@ async def regular_start_handler(message: Message, state: FSMContext):
         )
     else:
         await message.answer(
-            "Щоб отримати доступ до бота, треба зареєструватись на сайті (https://fiv-one-site.vercel.app/). Після реєстрації ти зможеш спостерігати за своїм прогресом в особистому профілі на сайті або в боті.",
+            "Щоб отримати доступ до бота, треба зареєструватись на сайті (https://fivone.education/). Після реєстрації ти зможеш спостерігати за своїм прогресом в особистому профілі на сайті або в боті.",
         )
 
 
@@ -1689,13 +1689,13 @@ async def regular_start_handler(message: Message, state: FSMContext):
             [
                 InlineKeyboardButton(
                     text=f"{button_text}",
-                    url="https://fiv-one-site.vercel.app/statistics",
+                    url="https://fivone.education/statistics",
                 )
             ]
         ]
     )
     await message.answer(
-        "Також спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fiv-one-site.vercel.app/statistics.",
+        "Також спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fivone.education/statistics.",
         reply_markup=keyboard,
     )
     await message.answer(
@@ -1945,7 +1945,7 @@ async def start(message: Message, state: FSMContext):
         await message.answer("Обирайте марафон чи курс", reply_markup=main)
     else:
         await message.answer(
-            "Щоб отримати доступ до бота, треба зареєструватись на сайті (https://fiv-one-site.vercel.app/). Після реєстрації ти зможеш спостерігати за своїм прогресом в особистому профілі на сайті або в боті.",
+            "Щоб отримати доступ до бота, треба зареєструватись на сайті (https://fivone.education/). Після реєстрації ти зможеш спостерігати за своїм прогресом в особистому профілі на сайті або в боті.",
         )
 
 
@@ -2719,6 +2719,5 @@ def textV(i, j, k):
 
     textVideo = tesks[f"textVideo{k}"]
     return textVideo
-
 
 
