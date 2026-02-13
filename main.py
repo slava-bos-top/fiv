@@ -7,13 +7,13 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram_sqlite_storage.sqlitestore import SQLStorage
 
-storage = SQLStorage("fsm_db.db", serializing_method="json")
-# from redis.asyncio import Redis
-# from aiogram.fsm.storage.redis import RedisStorage
+# storage = SQLStorage("fsm_db.db", serializing_method="json")
+from redis.asyncio import Redis
+from aiogram.fsm.storage.redis import RedisStorage
 
-# redis = Redis.from_url(Config.REDIS_URL)
+redis = Redis.from_url(Config.REDIS_URL)
 
-# storage = RedisStorage(redis=redis)
+storage = RedisStorage(redis=redis)
 bot = Bot(token=Config.BOT_TOKEN)
 dp = Dispatcher(storage=storage)
 
