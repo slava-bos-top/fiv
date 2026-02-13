@@ -1,13 +1,13 @@
 aiogram
-asyncpg==0.30.0
+asyncio
 python-dotenv
 requests
 gspread
 oauth2client
 flask
-fastapi
-uvicorn
+requests
 google-api-python-client
 cloudinary
 matplotlib
 aiogram-sqlite-storage
+redis
