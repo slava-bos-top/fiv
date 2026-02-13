@@ -13,6 +13,7 @@ class Config:
     CLOUDINARY_CLOUD_NAME: str
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
+    REDIS_URL: str
 
     @classmethod
     def load(cls):
@@ -29,4 +30,5 @@ class Config:
         cls.ADMIN_ID = int(os.getenv("ADMIN_ID", 0))
         cls.DEBUG = os.getenv("DEBUG", "False") == "True"
         cls.FIRST_DATE = os.getenv("FIRST_DATE", "")
+        cls.REDIS_URL = os.getenv("REDIS_URL")
 
