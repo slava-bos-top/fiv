@@ -4,10 +4,8 @@ from config import Config
 Config.load()
 
 from aiogram import Bot, Dispatcher, F
-from app.handlers import router
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram_sqlite_storage.sqlitestore import SQLStorage
-from aiogram import Router
 
 storage = SQLStorage("fsm_db.db", serializing_method="json")
 # from redis.asyncio import Redis
@@ -18,6 +16,8 @@ storage = SQLStorage("fsm_db.db", serializing_method="json")
 # storage = RedisStorage(redis=redis)
 bot = Bot(token=Config.BOT_TOKEN)
 dp = Dispatcher(storage=storage)
+
+from app.handlers import router
 
 
 async def main():
