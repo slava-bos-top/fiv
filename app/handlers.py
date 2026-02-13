@@ -118,7 +118,7 @@ main = ReplyKeyboardMarkup(
 )
 
 
-list_for_exsel_lesson = [[0, 7, 13], [19, 25, 31], [37, 44, 51], [56, 62, 68], [74]]
+list_for_exsel_lesson = [[0, 7, 14], [20, 26, 32], [38, 45, 52], [57, 63, 69], [75]]
 
 marafons = [
     "Фізика",
@@ -529,11 +529,124 @@ async def dz(callback: CallbackQuery, state: FSMContext):
             [InlineKeyboardButton(text=f"Перевірити себе", callback_data="check")]
         ]
     )
-    await bot.send_message(
-        chat_id=callback.message.chat.id,
-        text="Готовий перевірити себе? Натисни кнопку нижче 👇 та вперед!",
-        reply_markup=keyboard,
-    )
+    data = await state.get_data()
+    tesks = data.get("dzM", [])
+    ggg = 1
+    if len(tesks["test"]) == 0:
+        if "addDz" not in tesks:
+            if "addDzn" not in tesks:
+                if "addVid" not in tesks:
+                    if tesks["addVideo"] == "0":
+                        ggg = 0
+
+    if ggg == 1:
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text="Готовий перевірити себе? Натисни кнопку нижче 👇 та вперед!",
+            reply_markup=keyboard,
+        )
+    else:
+        ggg = 1
+        data = await state.get_data()
+        way = data.get("way", [])
+        if int(way[1]) == 0:
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text=f"Обрати інший урок", callback_data="next"
+                        )
+                    ]
+                ]
+            )
+        elif int(way[1]) == 1:
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text=f"Обрати інший урок", callback_data="nextsecond"
+                        )
+                    ]
+                ]
+            )
+        else:
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text=f"Обрати інший урок", callback_data="nextthird"
+                        )
+                    ]
+                ]
+            )
+        await state.update_data(kof=[1])
+        if tesks["End"] == "0":
+            await state.update_data(ends=0)
+
+            await state.update_data(num=[])
+            text = "Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
+            textForEnds = "Готовий до наступного уроку? 🚀"
+            textForEndstextForEndsInButton = "Наступний урок"
+        elif tesks["End"] == "1":
+            textForEnds = "Новий тиждень — нові знання! 🚀"
+            textForEndstextForEndsInButton = "Наступний тиждень"
+            await state.update_data(ends=1)
+            await state.update_data(num=[])
+            data = await state.get_data()
+            way = data.get("way", [])
+            p = way[0]
+            await state.update_data(way=[])
+            data = await state.get_data()
+            way = data.get("way", [])
+            way.append(p)
+            await state.update_data(way=way)
+            text = "Це був останній урок цього тижня! Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
+        else:
+            textForEnds = "Обирай інший марафон"
+            await state.update_data(ends=2)
+            text = "Це був останній урок цього марафону! Крокуй далі, тисни кнопку 👇 Пройдений урок отримає позначку ✅ (урок засвоєний)."
+            await state.update_data(num=[])
+            await state.update_data(way=[])
+        button_text = "Позначити як виконаний ✅"
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text=f"{button_text}", callback_data="Done")]
+            ]
+        )
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=text,
+            reply_markup=keyboard,
+        )
+
+        if tesks["End"] != "2":
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text=textForEndstextForEndsInButton,
+                            callback_data="refresh_lessons",
+                        )
+                    ]
+                ]
+            )
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text=textForEnds,
+                reply_markup=keyboard,
+            )
+        else:
+            data = await state.get_data()
+            marafonskey = data.get("marafonskey0", [])
+            lessonKeyboard = ReplyKeyboardMarkup(
+                keyboard=[[KeyboardButton(text=lesson)] for lesson in marafonskey],
+                resize_keyboard=True,
+            )
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text="Вітаю, ти завершив марафон! 🔥 Готовий до нового виклику? Обери наступний!",
+                reply_markup=lessonKeyboard,
+            )
 
 
 @router.callback_query(F.data == "check")
@@ -542,11 +655,12 @@ async def dz(callback: CallbackQuery, state: FSMContext):
     tesks = data.get("dzM", [])
     dz = tesks["dz"]
     k = 1
-    if len(tesks["test"]) == 0:
-        await bot.send_message(
-            chat_id=callback.message.chat.id,
-            text="Цього разу без тестів — просто насолоджуйся матеріалом!",
-        )
+    # Додати повідомлення Цього разу без тестів — просто насолоджуйся матеріалом!
+    # if len(tesks["test"]) == 0:
+    #     await bot.send_message(
+    #         chat_id=callback.message.chat.id,
+    #         text="Цього разу без тестів — просто насолоджуйся матеріалом!",
+    #     )
     for i in tesks["test"]:
         if k == 1:
             await bot.send_message(
@@ -627,12 +741,23 @@ async def dz(callback: CallbackQuery, state: FSMContext):
         k += 1
     if "addDz" in tesks:
         text = tesks["addDz"]
-        await bot.send_message(
-            chat_id=callback.message.chat.id,
-            text=text,
-            disable_web_page_preview=False,
-            parse_mode="HTML",
-        )
+        if "videoExpAdd" in tesks:
+            videoExpAdd = tesks["videoExpAdd"]
+            video = FSInputFile(videoExpAdd)
+            await bot.send_video(
+                chat_id=callback.message.chat.id,
+                video=video,
+                caption=text,
+                disable_notification=True,
+                parse_mode="HTML",
+            )
+        else:
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text=text,
+                disable_web_page_preview=False,
+                parse_mode="HTML",
+            )
     if "addDzn" in tesks:
         text = tesks["addDzn"]
         await bot.send_message(
@@ -1042,7 +1167,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
             #         resize_keyboard=True,
             #     ),
             # )
-        row_values[104 + Cursles[0]] = g - 1
+        row_values[105 + Cursles[0]] = g - 1
 
         sheet.update(f"A{row_index}", [row_values])
         data = await state.get_data()
@@ -1212,7 +1337,7 @@ async def register_city(message: Message, state: FSMContext):
             ena,
             photo_url,
         ]
-        user_data += [0] * 120
+        user_data += [0] * 121
         sheet.append_row(user_data)
         await message.answer(
             "Номер підтверджено. Вітаємо в клубі розумників та розумниць! 😉"
@@ -1393,7 +1518,7 @@ async def progress_marafons(message: Message, state: FSMContext):
 
     labels = ["Пройдено", "Залишилось"]
     sumF = statisticM[0][0] + statisticM[0][1] + statisticM[0][2]
-    sizes = [(sumF / 19) * 100, (1 - sumF / 19) * 100]
+    sizes = [(sumF / 20) * 100, (1 - sumF / 20) * 100]
     colors = ["#04FA0C", "#FF0000"]
 
     # Створення діаграми
@@ -1415,7 +1540,7 @@ async def progress_marafons(message: Message, state: FSMContext):
         await bot.send_photo(
             chat_id=message.chat.id,
             photo=photo,
-            caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[0][0]} / 7\nТиждень 2: {statisticM[0][1]} / 6\nТиждень 3: {statisticM[0][2]} / 6",
+            caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[0][0]} / 7\nТиждень 2: {statisticM[0][1]} / 6\nТиждень 3: {statisticM[0][2]} / 7",
         )
 
     sumC = statisticM[1][0] + statisticM[1][1] + statisticM[1][2]
@@ -1519,7 +1644,7 @@ async def progress_marafons(message: Message, state: FSMContext):
         await bot.send_photo(
             chat_id=message.chat.id,
             photo=photo,
-            caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[4][0]} / 7",
+            caption=f"📊 Твій прогрес у марафоні: {statisticM[4][0]} / 7",
         )
 
     if alls == 0:
@@ -1560,6 +1685,8 @@ async def start(message: Message, state: FSMContext):
     data = await state.get_data() or {}
     # go = data.get("go", [])
     allow = data.get("allow", [])
+    # allow = [0]
+    # allow[0] = 1
     if allow[0] == 1:
         if "go" in data:
             pass
@@ -1649,6 +1776,7 @@ async def start(message: Message, state: FSMContext):
                     "Урок 4. Оптика",
                     "Урок 5. Зв'язок",
                     "Урок 6. Астрофізика",
+                    "Урок 7. Нобелівська премія з фізики",
                     "Повернутися до тижнів",
                 ],
                 leson1=[
@@ -1741,7 +1869,7 @@ async def start(message: Message, state: FSMContext):
                     "Урок 5. Квілінг",
                     "Урок 6. Три іграшки з фоамірану",
                     "Урок 7. Іграшка у техніці декупаж",
-                    "Повернутися до тижнів",
+                    "Повернутися до марафонів",
                 ],
                 Curskey0=[
                     "Курс. Розвиток креативності",
@@ -1929,11 +2057,40 @@ async def Marafons(message: Message, state: FSMContext):
     data = await state.get_data()
     f = f"wek{t}"
     week = data.get(f, [])
-    lessonKeyboard = ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text=lesson)] for lesson in week],
-        resize_keyboard=True,
-    )
-    await message.answer("Обери тиждень", reply_markup=lessonKeyboard)
+    if index != 4:
+        lessonKeyboard = ReplyKeyboardMarkup(
+            keyboard=[[KeyboardButton(text=lesson)] for lesson in week],
+            resize_keyboard=True,
+        )
+        await message.answer("Обери тиждень", reply_markup=lessonKeyboard)
+    else:
+        index = 0
+        data = await state.get_data()
+        way = data.get("way", [])
+        way.append(index)
+        await state.update_data(way=way)
+        current_module = sys.modules[__name__]
+        if index == 0:
+            data = await state.get_data()
+            way = data.get("way", [])
+            keyboard_name = f"leson{way[0]}"
+        elif index == 1:
+            data = await state.get_data()
+            way = data.get("way", [])
+            keyboard_name = f"lesonForWeekSecond{way[0]}"
+        else:
+            data = await state.get_data()
+            way = data.get("way", [])
+            keyboard_name = f"lesonForWeekThird{way[0]}"
+
+        data = await state.get_data()
+        week = data.get(keyboard_name, [])
+        lessonKeyboard = ReplyKeyboardMarkup(
+            keyboard=[[KeyboardButton(text=lesson)] for lesson in week],
+            resize_keyboard=True,
+        )
+
+        await message.answer("Обери урок", reply_markup=lessonKeyboard)
 
 
 @router.message(
@@ -2531,3 +2688,4 @@ def textV(i, j, k):
 
     textVideo = tesks[f"textVideo{k}"]
     return textVideo
+
