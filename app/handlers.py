@@ -42,7 +42,8 @@ from aiogram.fsm.context import FSMContext
 
 import app.keyboards as kb
 from config import Config
-from main import bot
+
+# from main import bot
 
 from io import BytesIO
 import matplotlib.pyplot as plt
@@ -182,6 +183,8 @@ parts_of_task = [
 
 @router.callback_query(F.data == "Exp")
 async def dz(callback: CallbackQuery, state: FSMContext):
+    from main import bot
+
     data = await state.get_data()
     dzC = data.get("dzC", [])
 
@@ -205,6 +208,8 @@ async def dz(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "refresh_tasks")
 async def handle_refresh_callback(callback: CallbackQuery, state: FSMContext):
+    from main import bot
+
     await callback.answer()
 
     # Отримуємо необхідні дані
@@ -229,6 +234,8 @@ async def handle_refresh_callback(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "refresh_part_tasks")
 async def handle_refresh_callback(callback: CallbackQuery, state: FSMContext):
+    from main import bot
+
     await callback.answer()
 
     # Отримуємо необхідні дані
@@ -253,6 +260,8 @@ async def handle_refresh_callback(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "dzCC")
 async def dz(callback: CallbackQuery, state: FSMContext):
+    from main import bot
+
     data = await state.get_data()
     dzC = data.get("dzC", [])
     dzPart = data.get("dzPart", [])
@@ -393,6 +402,8 @@ from datetime import datetime
 
 @router.callback_query(F.data == "refresh_lessons")
 async def handle_refresh_callback(callback: CallbackQuery, state: FSMContext):
+    from main import bot
+
     await callback.answer()
 
     # Отримуємо необхідні дані
@@ -428,6 +439,8 @@ async def handle_refresh_callback(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "dzMM")
 async def dz(callback: CallbackQuery, state: FSMContext):
+    from main import bot
+
     data = await state.get_data()
     tesks = data.get("dzM", [])
     dz = tesks["dz"]
@@ -651,6 +664,8 @@ async def dz(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "check")
 async def dz(callback: CallbackQuery, state: FSMContext):
+    from main import bot
+
     data = await state.get_data()
     tesks = data.get("dzM", [])
     dz = tesks["dz"]
@@ -1266,6 +1281,8 @@ from cloudinary import uploader, config as cloudinary_config
 
 @router.message(StateFilter(UserProgress.numbers), F.contact)
 async def register_city(message: Message, state: FSMContext):
+    from main import bot
+
     await message.answer("Дані зберігаються...", reply_markup=ReplyKeyboardRemove())
     contact = message.contact
     phone_raw = getattr(contact, "phone_number", None)
@@ -1364,6 +1381,8 @@ async def register_city(message: Message, state: FSMContext):
 
 @router.message(Command("start"))
 async def regular_start_handler(message: Message, state: FSMContext):
+    from main import bot
+
     await message.answer(
         "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело!",
     )
@@ -1395,6 +1414,8 @@ async def regular_start_handler(message: Message, state: FSMContext):
 
 @router.message(F.text == "Про нас")
 async def about_us(message: Message, state: FSMContext):
+    from main import bot
+
     await bot.send_message(
         chat_id=message.chat.id,
         text="🎓 <b>Привіт! Ми — команда FivOne!</b>\n\nМи віримо, що навчання може бути цікавим, легким і надихаючим. Саме тому створили цей телеграм-бот — твій персональний помічник, який крок за кроком проведе тебе через усі теми та допоможе розкрити свій потенціал 🚀\n\n📚 <b>Тут ти знайдеш:</b>\n✨ Марафони з фізики, хімії, програмування, креативності та навіть новорічний 🎄\n💡 Курси з фізики, програмування й розвитку креативного мислення\n\nУсе, що потрібно — просто обрати напрям і почати!\nНавчайся у зручному форматі, у своєму темпі, із натхненням 💫",
@@ -1404,6 +1425,8 @@ async def about_us(message: Message, state: FSMContext):
 
 @router.message(F.text == "Прогрес у курсах")
 async def progress_curs(message: Message, state: FSMContext):
+    from main import bot
+
     data = await state.get_data()
     statisticC = data.get("statisticC", [])
 
@@ -1505,6 +1528,8 @@ async def progress_curs(message: Message, state: FSMContext):
 
 @router.message(F.text == "Прогрес у марафонах")
 async def progress_marafons(message: Message, state: FSMContext):
+    from main import bot
+
     data = await state.get_data()
     statisticM = data.get("statisticM", [])
 
@@ -2169,6 +2194,8 @@ async def Week(message: Message, state: FSMContext):
     )
 )
 async def LessonMAR(message: Message, state: FSMContext):
+    from main import bot
+
     data = await state.get_data()
     kof = data.get("kof", [])
     les = data.get("les", [])
@@ -2455,6 +2482,8 @@ async def Curses(message: Message, state: FSMContext):
     )
 )
 async def LessonCurs(message: Message, state: FSMContext):
+    from main import bot
+
     data = await state.get_data()
     Curskof = data.get("Curskof", [])
     Cursles = data.get("Cursles", [])
@@ -2549,6 +2578,8 @@ async def LessonCurs(message: Message, state: FSMContext):
     )
 )
 async def LessonpartCurs(message: Message, state: FSMContext):
+    from main import bot
+
     data = await state.get_data()
     Cursnum = data.get("Cursnum", [])
     lesson = CURS[int(Cursnum[0])]
@@ -2688,4 +2719,5 @@ def textV(i, j, k):
 
     textVideo = tesks[f"textVideo{k}"]
     return textVideo
+
 
