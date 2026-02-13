@@ -1565,7 +1565,7 @@ async def progress_marafons(message: Message, state: FSMContext):
         await bot.send_photo(
             chat_id=message.chat.id,
             photo=photo,
-            caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[0][0]} / 7\nТиждень 2: {statisticM[0][1]} / 6\nТиждень 3: {statisticM[0][2]} / 7",
+            caption=f"📊 Твій прогрес у марафоні з фізики\n\nТиждень 1: {statisticM[0][0]} / 7\nТиждень 2: {statisticM[0][1]} / 6\nТиждень 3: {statisticM[0][2]} / 7",
         )
 
     sumC = statisticM[1][0] + statisticM[1][1] + statisticM[1][2]
@@ -1591,7 +1591,7 @@ async def progress_marafons(message: Message, state: FSMContext):
         await bot.send_photo(
             chat_id=message.chat.id,
             photo=photo,
-            caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[1][0]} / 6\nТиждень 2: {statisticM[1][1]} / 6\nТиждень 3: {statisticM[1][2]} / 6",
+            caption=f"📊 Твій прогрес у марафоні з хімії\n\nТиждень 1: {statisticM[1][0]} / 6\nТиждень 2: {statisticM[1][1]} / 6\nТиждень 3: {statisticM[1][2]} / 6",
         )
 
     sumK = statisticM[2][0] + statisticM[2][1] + statisticM[2][2]
@@ -1617,7 +1617,7 @@ async def progress_marafons(message: Message, state: FSMContext):
         await bot.send_photo(
             chat_id=message.chat.id,
             photo=photo,
-            caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[2][0]} / 7\nТиждень 2: {statisticM[2][1]} / 7\nТиждень 3: {statisticM[2][2]} / 5",
+            caption=f"📊 Твій прогрес у марафоні з креативності\n\nТиждень 1: {statisticM[2][0]} / 7\nТиждень 2: {statisticM[2][1]} / 7\nТиждень 3: {statisticM[2][2]} / 5",
         )
 
     sumI = statisticM[3][0] + statisticM[3][1] + statisticM[3][2]
@@ -1643,7 +1643,7 @@ async def progress_marafons(message: Message, state: FSMContext):
         await bot.send_photo(
             chat_id=message.chat.id,
             photo=photo,
-            caption=f"📊 Твій прогрес у марафоні\n\nТиждень 1: {statisticM[3][0]} / 6\nТиждень 2: {statisticM[3][1]} / 6\nТиждень 3: {statisticM[3][2]} / 6",
+            caption=f"📊 Твій прогрес у марафоні з програмування\n\nТиждень 1: {statisticM[3][0]} / 6\nТиждень 2: {statisticM[3][1]} / 6\nТиждень 3: {statisticM[3][2]} / 6",
         )
 
     sumF = statisticM[4][0]
@@ -1669,7 +1669,7 @@ async def progress_marafons(message: Message, state: FSMContext):
         await bot.send_photo(
             chat_id=message.chat.id,
             photo=photo,
-            caption=f"📊 Твій прогрес у марафоні: {statisticM[4][0]} / 7",
+            caption=f"📊 Твій прогрес у новорічному марафоні: {statisticM[4][0]} / 7",
         )
 
     if alls == 0:
@@ -2719,5 +2719,6 @@ def textV(i, j, k):
 
     textVideo = tesks[f"textVideo{k}"]
     return textVideo
+
 
 
