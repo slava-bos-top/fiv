@@ -1451,6 +1451,7 @@ async def progress_curs(message: Message, state: FSMContext):
     # Запис у пам’ять
     buffer = BytesIO()
     plt.savefig(buffer, format="png")
+    plt.close(fig)
     buffer.seek(0)
 
     # Обгортання в BufferedInputFile
@@ -1477,6 +1478,7 @@ async def progress_curs(message: Message, state: FSMContext):
     # Запис у пам’ять
     buffer = BytesIO()
     plt.savefig(buffer, format="png")
+    plt.close(fig)
     buffer.seek(0)
 
     # Обгортання в BufferedInputFile
@@ -1503,6 +1505,7 @@ async def progress_curs(message: Message, state: FSMContext):
     # Запис у пам’ять
     buffer = BytesIO()
     plt.savefig(buffer, format="png")
+    plt.close(fig)
     buffer.seek(0)
 
     # Обгортання в BufferedInputFile
@@ -1554,6 +1557,7 @@ async def progress_marafons(message: Message, state: FSMContext):
     # Запис у пам’ять
     buffer = BytesIO()
     plt.savefig(buffer, format="png")
+    plt.close(fig)
     buffer.seek(0)
 
     # Обгортання в BufferedInputFile
@@ -1580,6 +1584,7 @@ async def progress_marafons(message: Message, state: FSMContext):
     # Запис у пам’ять
     buffer = BytesIO()
     plt.savefig(buffer, format="png")
+    plt.close(fig)
     buffer.seek(0)
 
     # Обгортання в BufferedInputFile
@@ -1606,6 +1611,7 @@ async def progress_marafons(message: Message, state: FSMContext):
     # Запис у пам’ять
     buffer = BytesIO()
     plt.savefig(buffer, format="png")
+    plt.close(fig)
     buffer.seek(0)
 
     # Обгортання в BufferedInputFile
@@ -1632,6 +1638,7 @@ async def progress_marafons(message: Message, state: FSMContext):
     # Запис у пам’ять
     buffer = BytesIO()
     plt.savefig(buffer, format="png")
+    plt.close(fig)
     buffer.seek(0)
 
     # Обгортання в BufferedInputFile
@@ -1658,6 +1665,7 @@ async def progress_marafons(message: Message, state: FSMContext):
     # Запис у пам’ять
     buffer = BytesIO()
     plt.savefig(buffer, format="png")
+    plt.close(fig)
     buffer.seek(0)
 
     # Обгортання в BufferedInputFile
