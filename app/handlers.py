@@ -2222,6 +2222,8 @@ async def LessonMAR(message: Message, state: FSMContext):
         # num.append(way[1])
         data = await state.get_data()
         indexM = data.get("indexM", [])
+        next_or_no_next = 0
+        next_w_or_no_next_w = 0
         for i in lessons:
             if i == str(message.text[:6]):
                 if i == "Наступ":
