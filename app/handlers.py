@@ -1728,7 +1728,7 @@ async def start(message: Message, state: FSMContext):
                 les=[],
                 num=[],
                 way=[],
-                dzС=[],
+                dzC=[],
                 Cursnum=[],
                 Cursway=[],
                 Cursles=[],
