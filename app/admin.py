@@ -110,8 +110,13 @@ async def admin_start(message: Message, state: FSMContext):
 # ===== Exit =====
 @router.message(F.text == "❌ Вийти з адміна", StateFilter("*"))
 async def admin_exit(message: Message, state: FSMContext):
-    await state.clear()
-    await message.answer("Вийшов з адмін панелі.", reply_markup=ReplyKeyboardRemove())
+    # ЗАМІСТЬ await state.clear() пишемо це:
+    await state.set_state(None) # Це просто скине стан адмінки, але збереже ваші дані в таблиці!
+    
+    await message.answer(
+        "Вийшов з адмін панелі. Тепер ви знову можете користуватися звичайним меню.", 
+        reply_markup=ReplyKeyboardRemove() # (Або поверніть сюди вашу звичайну клавіатуру користувача)
+    )
  
 # ===== COURSES FLOW =====
  
