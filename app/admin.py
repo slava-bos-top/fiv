@@ -256,6 +256,24 @@ async def admin_course_field_selected(message: Message, state: FSMContext):
             f"Що редагуємо в Частині {part_num+1}?",
             reply_markup=make_keyboard(list(fields.keys()))
         )
+
+@router.message(AdminStates.choosing_course_part, F.text == "🔙 Назад")
+async def admin_back_to_course_fields(message: Message, state: FSMContext):
+    # 1. Повертаємо стан назад до вибору того, що редагуємо (назва чи частини)
+    await state.set_state(AdminStates.choosing_course_field)
+    
+    # 2. Отримуємо збережену раніше кількість відео
+    data = await state.get_data()
+    amount = int(data.get("course_amount", 0))
+    
+    # 3. Перегенеруємо клавіатуру, яка була на попередньому екрані
+    options = ["📝 Назва заняття"]
+    for i in range(amount):
+        options.append(f"🎬 Частина {i+1}")
+    options.append("📋 Фінальне завдання (task)")
+    
+    # 4. Відправляємо меню назад користувачу
+    await message.answer("Що редагуємо?", reply_markup=make_keyboard(options))
  
 @router.message(AdminStates.choosing_course_part)
 async def admin_course_part_field(message: Message, state: FSMContext):
