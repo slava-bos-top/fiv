@@ -21,7 +21,8 @@ storage = RedisStorage(redis=redis)
 bot = Bot(token=Config.BOT_TOKEN)
 dp = Dispatcher(storage=storage)
 
-from app.handlers import router
+from app.handlers import router as user_router
+from app.admin import router as admin_router
 
 async def load_users_from_sheet():
     scope = [
@@ -45,13 +46,14 @@ async def load_users_from_sheet():
             try:
                 user_phone_map[int(user_id)] = phone
             except ValueError:
-                pass  # пропускаємо заголовок або порожні рядки
+                pass
 
     print(f"✅ Завантажено {len(user_phone_map)} користувачів з таблиці")
 
 
 async def main():
-    dp.include_router(router)
+    dp.include_router(admin_router)
+    dp.include_router(user_router)
     await load_users_from_sheet()
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
