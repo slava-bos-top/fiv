@@ -240,7 +240,9 @@ async def admin_course_field_selected(message: Message, state: FSMContext):
     # Якщо обрали частину
     if message.text.startswith("🎬 Частина"):
         part_num = int(message.text.split()[-1]) - 1
-        await state.update_data(edit_part=part_num)
+        
+        # Оновлюємо рядок збереження: тепер записуємо і поточну частину, і запам'ятовуємо її як останню відкриту
+        await state.update_data(edit_part=part_num, last_viewed_part=part_num)
  
         curs = load_curs()
         tesks = curs[data["course_idx"]][f"tesks_{data['lesson_idx']}"]
@@ -300,6 +302,43 @@ async def admin_course_part_field(message: Message, state: FSMContext):
         f"Поточне значення:\n\n{current}\n\n✏️ Введи нове значення:",
         reply_markup=make_keyboard(["🔙 Назад", "❌ Вийти з адміна"], add_back=False),
         parse_mode="HTML"
+    )
+
+@router.message(AdminStates.editing_course_value, F.text == "🔙 Назад")
+async def admin_cancel_editing_course(message: Message, state: FSMContext):
+    data = await state.get_data()
+    
+    # Дістаємо номери курсів та занять
+    course_idx = data.get("course_idx")
+    lesson_idx = data.get("lesson_idx")
+    
+    # Визначаємо, яку частину уроку показати. 
+    # Якщо edit_part є, беремо її. Якщо немає (бо редагували назву заняття), 
+    # за замовчуванням покажемо першу частину (індекс 0), або замініть на потрібну вам логіку.
+    edit_part = data.get("edit_part")
+    if edit_part is None:
+        edit_part = 0  # Примусово показуємо Частину 1 (індекс 0) при поверненні з назви
+        # Або якщо хочете, щоб повертало до останньої обраної частини:
+        # edit_part = data.get("last_viewed_part", 0)
+    
+    # 1. Примусово переводимо користувача в стан вибору полів частини (як на вашому фото)
+    await state.set_state(AdminStates.choosing_course_part)
+    
+    # 2. Зберігаємо цей номер частини в state, щоб бот пам'ятав його для наступних натискань
+    await state.update_data(edit_part=edit_part)
+    
+    # 3. Завантажуємо дані з вашого curs.json, щоб побудувати кнопки
+    curs = load_curs()
+    tesks = curs[course_idx][f"tesks_{lesson_idx}"]
+    
+    # 4. Генеруємо словник підполів для цієї частини (Назва відео, Посилання, Завдання)
+    fields_dict = get_curs_part_fields(tesks, edit_part)
+    options = list(fields_dict.keys())
+    
+    # 5. Відправляємо повідомлення з тими самими кнопками, що й на вашому скріншоті
+    await message.answer(
+        f"Редагування скасовано. Оберіть поле для Частини {edit_part + 1}:", 
+        reply_markup=make_keyboard(options)
     )
 
 @router.message(AdminStates.editing_course_value, F.text == "🔙 Назад")
