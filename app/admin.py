@@ -94,12 +94,14 @@ MARATHON_TEST_FIELDS = {
 # ===== /admin entry =====
 @router.message(Command("admin")) 
 async def admin_start(message: Message, state: FSMContext):
-    await state.clear() 
+    # ❌ ВИДАЛЯЄМО АБО КОМЕНТУЄМО ЦЕЙ РЯДОК:
+    # await state.clear()  <-- через це зникали дані з Redis!
     
     if not is_admin(message.from_user.id):
         await message.answer("⛔️ У тебе немає доступу до адмін панелі.")
         return
   
+    # aiogram 3.x сам переведе вас у стан адміна, не чіпаючи інші дані в Redis
     await state.set_state(AdminStates.choosing_content_type)
     
     await message.answer(
