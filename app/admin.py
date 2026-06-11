@@ -1,6 +1,6 @@
 import json
 from aiogram import Router, F
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
@@ -108,7 +108,7 @@ async def admin_start(message: Message, state: FSMContext):
     )
  
 # ===== Exit =====
-@router.message(F.text == "❌ Вийти з адміна")
+@router.message(F.text == "❌ Вийти з адміна", StateFilter("*"))
 async def admin_exit(message: Message, state: FSMContext):
     await state.clear()
     await message.answer("Вийшов з адмін панелі.", reply_markup=ReplyKeyboardRemove())
@@ -269,6 +269,22 @@ async def admin_course_part_field(message: Message, state: FSMContext):
         reply_markup=make_keyboard(["🔙 Назад", "❌ Вийти з адміна"], add_back=False),
         parse_mode="HTML"
     )
+
+@router.message(AdminStates.editing_course_value, F.text == "🔙 Назад")
+async def admin_cancel_editing_course(message: Message, state: FSMContext):
+    # Повертаємо користувача на крок назад — до вибору того, що редагувати
+    await state.set_state(AdminStates.choosing_course_field)
+    
+    # Знову генеруємо меню вибору полів (копіюємо логіку, яка була в admin_choose_course_lesson)
+    data = await state.get_data()
+    amount = data.get("course_amount", 0)
+    
+    options = ["📝 Назва заняття"]
+    for i in range(amount):
+        options.append(f"🎬 Частина {i+1}")
+    options.append("📋 Фінальне завдання (task)")
+    
+    await message.answer("Редагування скасовано. Що редагуємо?", reply_markup=make_keyboard(options))
  
 @router.message(AdminStates.editing_course_value)
 async def admin_save_course_value(message: Message, state: FSMContext):
