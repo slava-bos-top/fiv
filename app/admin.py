@@ -197,9 +197,16 @@ async def admin_choose_course_field(message: Message, state: FSMContext):
 async def admin_course_field_selected(message: Message, state: FSMContext):
     if message.text == "🔙 Назад":
         data = await state.get_data()
+        # 1. Повертаємо стан на крок назад (вибір заняття)
         await state.set_state(AdminStates.choosing_course_lesson)
-        await admin_choose_course_lesson.__wrapped__(message, state) if hasattr(admin_choose_course_lesson, '__wrapped__') else None
+        
+        # 2. Дістаємо список занять, який ми заздалегідь зберегли в цьому стані
+        lessons = data.get("course_lessons", [])
+        
+        # 3. Просто відправляємо повідомлення з клавіатурою занять заново!
+        await message.answer("Обери заняття:", reply_markup=make_keyboard(lessons))
         return
+        
     if message.text == "❌ Вийти з адміна":
         await admin_exit(message, state)
         return
