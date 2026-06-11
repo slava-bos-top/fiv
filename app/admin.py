@@ -10,7 +10,7 @@ from config import Config
 router = Router()
  
 # ===== ADMIN IDs =====
-ADMIN_IDS = [886330407, 928741410]  # Додай сюди свої Telegram ID
+ADMIN_IDS = [769775046, 928741410]  # Додай сюди свої Telegram ID
  
 # ===== States =====
 class AdminStates(StatesGroup):
