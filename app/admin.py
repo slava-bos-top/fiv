@@ -92,12 +92,15 @@ MARATHON_TEST_FIELDS = {
 }
  
 # ===== /admin entry =====
-@router.message(Command("admin"), state="*") 
+@router.message(Command("admin")) 
 async def admin_start(message: Message, state: FSMContext):
+    await state.clear() 
+    
     if not is_admin(message.from_user.id):
         await message.answer("⛔️ У тебе немає доступу до адмін панелі.")
         return
-    await state.set_state(AdminStates.choosing_content_type) 
+  
+    await state.set_state(AdminStates.choosing_content_type)
     
     await message.answer(
         "👋 Вітаю в адмін панелі!\nЩо хочеш редагувати?",
