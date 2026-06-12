@@ -1494,7 +1494,7 @@ async def progress_curs(message: Message, state: FSMContext):
         )
 
     sumK = statisticC[2][0]
-    sizes = [(sumK / 10) * 100, (1 - sumK / 10) * 100]
+    sizes = [(sumK / 9) * 100, (1 - sumK / 9) * 100]
     colors = ["#04FA0C", "#FF0000"]
 
     # Створення діаграми
