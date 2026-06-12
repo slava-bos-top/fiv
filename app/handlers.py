@@ -1517,7 +1517,7 @@ async def progress_curs(message: Message, state: FSMContext):
         await bot.send_photo(
             chat_id=message.chat.id,
             photo=photo,
-            caption=f"📊 Твій прогрес у курсі з старт програмування: {statisticC[2][0]} / 10",
+            caption=f"📊 Твій прогрес у курсі з старт програмування: {statisticC[2][0]} / 9",
         )
 
     if alls == 0:
@@ -1946,7 +1946,6 @@ async def start(message: Message, state: FSMContext):
                     "Заняття 7. Робота з рядками і символами",
                     "Заняття 8. Робота з файлами",
                     "Заняття 9. Об'єктно-орієнтоване програмування",
-                    "Заняття 10. Принципи ООП",
                     "Повернутися до курсів",
                 ],
             )
