@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from app.drive_storage import download_json, upload_json
 from config import Config
-import main as app_main
+from app import storage_json
 
 router = Router()
 
@@ -39,14 +39,14 @@ def load_curs() -> list:
 
 def save_curs(data: list):
     upload_json(Config.CURS_JSON_FILE_ID, data)
-    app_main.CURS = data  # ← оновлюємо в пам'яті щоб бот одразу бачив зміни
+    storage_json.CURS = data
 
 def load_lessons() -> list:
     return download_json(Config.LESSONS_JSON_FILE_ID)
 
 def save_lessons(data: list):
     upload_json(Config.LESSONS_JSON_FILE_ID, data)
-    app_main.LESSONS = data
+    storage_json.LESSONS = data
 
 def make_keyboard(buttons: list, add_back=True) -> ReplyKeyboardMarkup:
     kb = [[KeyboardButton(text=b)] for b in buttons]
