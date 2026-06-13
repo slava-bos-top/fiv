@@ -5,7 +5,7 @@
       "week_0": {
         "index": "0",
         "tesks_0": {
-            "text": "Урок 1: Сила Всесвітнього тяжіння. Невагомість",
+            "text": "Урок 1. Сила Всесвітнього тяжіння. Невагомість",
             "image": "app/media/marafons/Physical/week1/lesson1/day1Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=99uKtW3bvRQ",
@@ -60,7 +60,7 @@
             }
         },
         "tesks_1": {
-            "text": "Урок 2: Вільне падіння. Прискорення вільного падіння",
+            "text": "Урок 2. Вільне падіння. Прискорення вільного падіння",
             "image": "app/media/marafons/Physical/week1/lesson2/day2Logo.jpg",
             "textVideo": "#відео 👇",
             "video_url": "https://www.youtube.com/watch?v=idZ90Tou7O4",
