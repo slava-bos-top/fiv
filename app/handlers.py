@@ -2594,7 +2594,7 @@ async def LessonpartCurs(message: Message, state: FSMContext):
     dzPart = data.get("dzPart", [])
     if f"task{k}" in tesks:
         dzPart = tesks[f"task{k}"]
-        if tesks["End"] == "2":
+        if int(tesks["amount_of_video"]) == k+1:
             await bot.send_message(
                 chat_id=message.chat.id,
                 text="Настав час закріпити знання! Натисни кнопку, щоб отримати домашнє завдання 📚",
