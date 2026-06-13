@@ -246,7 +246,7 @@ async def admin_course_part_field(message: Message, state: FSMContext):
         amount = int(data.get("course_amount", 0))
         options = ["Назва заняття"]
         for i in range(amount):
-            options.append(f"🎬 Частина {i+1}")
+            options.append(f"Частина {i+1}")
         await state.set_state(AdminStates.choosing_course_field)
         await message.answer("Що редагуємо?", reply_markup=make_keyboard(options))
         return
