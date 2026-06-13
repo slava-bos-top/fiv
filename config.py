@@ -14,6 +14,8 @@ class Config:
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
     REDIS_URL: str
+    CURS_JSON_FILE_ID: str = ""
+    LESSONS_JSON_FILE_ID: str = ""
 
     @classmethod
     def load(cls):
@@ -31,4 +33,6 @@ class Config:
         cls.DEBUG = os.getenv("DEBUG", "False") == "True"
         cls.FIRST_DATE = os.getenv("FIRST_DATE", "")
         cls.REDIS_URL = os.getenv("REDIS_URL")
+        cls.CURS_JSON_FILE_ID = os.getenv("CURS_JSON_FILE_ID", "")
+        cls.LESSONS_JSON_FILE_ID = os.getenv("LESSONS_JSON_FILE_ID", "")
 
