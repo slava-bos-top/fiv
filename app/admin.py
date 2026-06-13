@@ -1,20 +1,18 @@
 import json
+import re
 from aiogram import Router, F
 from aiogram.filters import Command, StateFilter
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from app.drive_storage import download_json, upload_json
 from config import Config
+from app.drive_storage import download_json, upload_json
 from app import storage_json
 
 router = Router()
 
-# ===== ADMIN IDs =====
-ADMIN_IDS = [1364672042, 928741410]
+ADMIN_IDS = [769775046, 928741410]
 
-# ===== States =====
 class AdminStates(StatesGroup):
     choosing_content_type = State()
     choosing_course = State()
@@ -30,7 +28,6 @@ class AdminStates(StatesGroup):
     choosing_marathon_test_field = State()
     editing_marathon_value = State()
 
-# ===== Helpers =====
 def is_admin(user_id: int) -> bool:
     return user_id in ADMIN_IDS
 
@@ -53,6 +50,13 @@ def make_keyboard(buttons: list, add_back=True) -> ReplyKeyboardMarkup:
     if add_back:
         kb.append([KeyboardButton(text="🔙 Назад"), KeyboardButton(text="❌ Вийти з адміна")])
     return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
+
+def is_valid_url(text: str) -> bool:
+    return text.startswith("http://") or text.startswith("https://")
+
+def is_valid_text(text: str) -> bool:
+    """Перевірка що текст не порожній і не занадто короткий"""
+    return len(text.strip()) >= 2
 
 def get_curs_part_fields(tesks: dict, part_idx: int) -> dict:
     fields = {}
@@ -80,11 +84,24 @@ MARATHON_LESSON_FIELDS = {
 MARATHON_TEST_FIELDS = {
     "❓ Питання": "question",
     "✅ Пояснення": "explanation",
+    "1️⃣ Варіант 1": "option_0",
+    "2️⃣ Варіант 2": "option_1",
+    "3️⃣ Варіант 3": "option_2",
+    "4️⃣ Варіант 4": "option_3",
+    "5️⃣ Варіант 5": "option_4",
 }
+
+URL_FIELDS = [
+    "video_url", "docs",
+    "video_url0", "video_url1", "video_url2", "video_url3", "video_url4",
+    "video_url5", "video_url6", "video_url7", "video_url8", "video_url9",
+    "video_url_Practise0", "video_url_Practise1", "video_url_Practise2",
+    "video_url_Practise3", "video_url_Practise4",
+]
 
 WEEK_NAMES = ["Тиждень 1", "Тиждень 2", "Тиждень 3"]
 
-# ===== /admin entry =====
+# ===== /admin =====
 @router.message(Command("admin"))
 async def admin_start(message: Message, state: FSMContext):
     if not is_admin(message.from_user.id):
@@ -93,23 +110,33 @@ async def admin_start(message: Message, state: FSMContext):
     await state.set_state(AdminStates.choosing_content_type)
     await message.answer(
         "👋 Вітаю в адмін панелі!\nЩо хочеш редагувати?",
-        reply_markup=make_keyboard(["📚 Курси", "🏃 Марафони"], add_back=False)
+        reply_markup=make_keyboard(
+            ["📚 Курси", "🏃 Марафони"],
+            add_back=False
+        )
+    )
+    # Додаємо кнопку виходу окремим рядком
+    kb = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="📚 Курси"), KeyboardButton(text="🏃 Марафони")],
+            [KeyboardButton(text="❌ Вийти з адміна")],
+        ],
+        resize_keyboard=True
+    )
+    await message.answer(
+        "👋 Вітаю в адмін панелі!\nЩо хочеш редагувати?",
+        reply_markup=kb
     )
 
 # ===== Exit =====
 @router.message(F.text == "❌ Вийти з адміна", StateFilter("*"))
 async def admin_exit(message: Message, state: FSMContext):
     await state.set_state(None)
-    await message.answer(
-        "Вийшов з адмін панелі.",
-        reply_markup=ReplyKeyboardRemove()
-    )
+    await message.answer("Вийшов з адмін панелі.", reply_markup=ReplyKeyboardRemove())
 
-# ===== COURSES FLOW =====
+# ===== COURSES =====
 
-@router.message(AdminStates.choosing_content_type, F.text == "📚 Курси")
-@router.message(AdminStates.choosing_content_type, F.text == "📚 Перейти до курсів")
-@router.message(AdminStates.choosing_content_type, F.text == "📚 Ще раз редагувати курси")
+@router.message(AdminStates.choosing_content_type, F.text.in_(["📚 Курси", "📚 Перейти до курсів", "📚 Ще раз редагувати курси"]))
 async def admin_choose_course(message: Message, state: FSMContext):
     curs = load_curs()
     names = [c["title"] for c in curs]
@@ -128,7 +155,7 @@ async def admin_choose_course_lesson(message: Message, state: FSMContext):
     curs = load_curs()
     course_idx = next((i for i, c in enumerate(curs) if c["title"] == message.text), None)
     if course_idx is None:
-        await message.answer("Курс не знайдено. Спробуй ще раз.")
+        await message.answer("❌ Курс не знайдено. Спробуй ще раз.")
         return
 
     await state.update_data(course_idx=course_idx)
@@ -158,13 +185,12 @@ async def admin_course_lesson_handler(message: Message, state: FSMContext):
     lessons = data.get("course_lessons", [])
     lesson_idx = next((i for i, l in enumerate(lessons) if l == message.text), None)
     if lesson_idx is None:
-        await message.answer("Заняття не знайдено.")
+        await message.answer("❌ Заняття не знайдено. Спробуй ще раз.")
         return
 
     await state.update_data(lesson_idx=lesson_idx)
     curs = load_curs()
-    course_idx = data["course_idx"]
-    tesks = curs[course_idx][f"tesks_{lesson_idx}"]
+    tesks = curs[data["course_idx"]][f"tesks_{lesson_idx}"]
     amount = int(tesks.get("amount_of_video", 0))
 
     options = ["📝 Назва заняття"]
@@ -223,7 +249,7 @@ async def admin_course_field_selected(message: Message, state: FSMContext):
         fields = get_curs_part_fields(tesks, part_num)
 
         if not fields:
-            await message.answer("Немає полів для редагування в цій частині.")
+            await message.answer("❌ Немає полів для редагування в цій частині.")
             return
 
         await state.update_data(part_fields=fields)
@@ -253,7 +279,7 @@ async def admin_course_part_field(message: Message, state: FSMContext):
     fields = data.get("part_fields", {})
     field_key = fields.get(message.text)
     if not field_key:
-        await message.answer("Поле не знайдено.")
+        await message.answer("❌ Поле не знайдено.")
         return
 
     await state.update_data(edit_field=field_key)
@@ -272,7 +298,6 @@ async def admin_save_course_value(message: Message, state: FSMContext):
         data = await state.get_data()
         edit_part = data.get("edit_part")
         if edit_part is not None:
-            # Повертаємось до вибору поля частини
             fields = get_curs_part_fields(
                 load_curs()[data["course_idx"]][f"tesks_{data['lesson_idx']}"],
                 edit_part
@@ -284,7 +309,6 @@ async def admin_save_course_value(message: Message, state: FSMContext):
                 reply_markup=make_keyboard(list(fields.keys()))
             )
         else:
-            # Повертаємось до вибору поля заняття
             amount = int(data.get("course_amount", 0))
             options = ["📝 Назва заняття"]
             for i in range(amount):
@@ -301,22 +325,50 @@ async def admin_save_course_value(message: Message, state: FSMContext):
     new_value = message.text
     field = data["edit_field"]
 
+    # Валідація
+    if field in URL_FIELDS:
+        if not is_valid_url(new_value):
+            await message.answer(
+                "❌ Схоже це не посилання. Посилання повинно починатись з http:// або https://\n\nСпробуй ще раз:"
+            )
+            return
+    else:
+        if not is_valid_text(new_value):
+            await message.answer("❌ Текст занадто короткий. Введи мінімум 2 символи:\n\nСпробуй ще раз:")
+            return
+
     curs = load_curs()
     curs[data["course_idx"]][f"tesks_{data['lesson_idx']}"][field] = new_value
     save_curs(curs)
 
-    await message.answer(
-        f"✅ Збережено!\n\nПоле <b>{field}</b> оновлено.",
-        parse_mode="HTML",
-        reply_markup=make_keyboard(["📚 Ще раз редагувати курси", "🏃 Перейти до марафонів", "❌ Вийти з адміна"], add_back=False)
-    )
-    await state.set_state(AdminStates.choosing_content_type)
+    # Повертаємось на один крок назад
+    edit_part = data.get("edit_part")
+    if edit_part is not None:
+        fields = get_curs_part_fields(
+            curs[data["course_idx"]][f"tesks_{data['lesson_idx']}"],
+            edit_part
+        )
+        await state.update_data(part_fields=fields)
+        await state.set_state(AdminStates.choosing_course_part)
+        await message.answer(
+            f"✅ Збережено!\n\nПовертались до Частини {edit_part+1}. Що ще редагуємо?",
+            reply_markup=make_keyboard(list(fields.keys()))
+        )
+    else:
+        amount = int(data.get("course_amount", 0))
+        options = ["📝 Назва заняття"]
+        for i in range(amount):
+            options.append(f"🎬 Частина {i+1}")
+        options.append("📋 Фінальне завдання (task)")
+        await state.set_state(AdminStates.choosing_course_field)
+        await message.answer(
+            "✅ Збережено! Що ще редагуємо?",
+            reply_markup=make_keyboard(options)
+        )
 
-# ===== MARATHONS FLOW =====
+# ===== MARATHONS =====
 
-@router.message(AdminStates.choosing_content_type, F.text == "🏃 Марафони")
-@router.message(AdminStates.choosing_content_type, F.text == "🏃 Перейти до марафонів")
-@router.message(AdminStates.choosing_content_type, F.text == "🏃 Ще раз редагувати марафони")
+@router.message(AdminStates.choosing_content_type, F.text.in_(["🏃 Марафони", "🏃 Перейти до марафонів", "🏃 Ще раз редагувати марафони"]))
 async def admin_choose_marathon(message: Message, state: FSMContext):
     lessons = load_lessons()
     names = [m["title"] for m in lessons]
@@ -335,7 +387,7 @@ async def admin_choose_week(message: Message, state: FSMContext):
     lessons = load_lessons()
     marathon_idx = next((i for i, m in enumerate(lessons) if m["title"] == message.text), None)
     if marathon_idx is None:
-        await message.answer("Марафон не знайдено.")
+        await message.answer("❌ Марафон не знайдено.")
         return
 
     await state.update_data(marathon_idx=marathon_idx)
@@ -347,7 +399,7 @@ async def admin_choose_week(message: Message, state: FSMContext):
             weeks.append(f"Тиждень {i+1}")
 
     if len(weeks) == 1:
-        await state.update_data(week_idx=0)
+        await state.update_data(week_idx=0, marathon_weeks=[])
         await state.set_state(AdminStates.choosing_marathon_lesson)
         await show_marathon_lessons(message, state)
         return
@@ -359,7 +411,6 @@ async def admin_choose_week(message: Message, state: FSMContext):
 @router.message(AdminStates.choosing_marathon_week)
 async def admin_marathon_week_handler(message: Message, state: FSMContext):
     if message.text == "🔙 Назад":
-        # Повертаємось до вибору марафону
         lessons = load_lessons()
         names = [m["title"] for m in lessons]
         await state.set_state(AdminStates.choosing_marathon)
@@ -371,7 +422,7 @@ async def admin_marathon_week_handler(message: Message, state: FSMContext):
 
     week_idx = next((i for i, w in enumerate(WEEK_NAMES) if w == message.text), None)
     if week_idx is None:
-        await message.answer("Тиждень не знайдено.")
+        await message.answer("❌ Тиждень не знайдено.")
         return
 
     await state.update_data(week_idx=week_idx)
@@ -403,7 +454,6 @@ async def admin_choose_marathon_field(message: Message, state: FSMContext):
             await state.set_state(AdminStates.choosing_marathon_week)
             await message.answer("Обери тиждень:", reply_markup=make_keyboard(weeks))
         else:
-            # Новорічний — одразу назад до марафонів
             lessons = load_lessons()
             names = [m["title"] for m in lessons]
             await state.set_state(AdminStates.choosing_marathon)
@@ -417,7 +467,7 @@ async def admin_choose_marathon_field(message: Message, state: FSMContext):
     lessons_list = data.get("marathon_lessons", [])
     lesson_idx = next((i for i, l in enumerate(lessons_list) if l == message.text), None)
     if lesson_idx is None:
-        await message.answer("Урок не знайдено.")
+        await message.answer("❌ Урок не знайдено.")
         return
 
     await state.update_data(marathon_lesson_idx=lesson_idx)
@@ -437,7 +487,6 @@ async def admin_choose_marathon_field(message: Message, state: FSMContext):
 @router.message(AdminStates.choosing_marathon_field)
 async def admin_marathon_field_selected(message: Message, state: FSMContext):
     if message.text == "🔙 Назад":
-        # Повертаємось до вибору уроку
         await state.set_state(AdminStates.choosing_marathon_lesson)
         await show_marathon_lessons(message, state)
         return
@@ -459,7 +508,7 @@ async def admin_marathon_field_selected(message: Message, state: FSMContext):
 
     field_key = MARATHON_LESSON_FIELDS.get(message.text)
     if not field_key:
-        await message.answer("Поле не знайдено.")
+        await message.answer("❌ Поле не знайдено.")
         return
 
     await state.update_data(edit_field=field_key, edit_context="lesson")
@@ -477,7 +526,6 @@ async def admin_marathon_field_selected(message: Message, state: FSMContext):
 @router.message(AdminStates.choosing_marathon_test)
 async def admin_choose_test_field(message: Message, state: FSMContext):
     if message.text == "🔙 Назад":
-        # Повертаємось до вибору поля уроку
         data = await state.get_data()
         fields = data.get("marathon_fields", list(MARATHON_LESSON_FIELDS.keys()))
         await state.set_state(AdminStates.choosing_marathon_field)
@@ -491,20 +539,32 @@ async def admin_choose_test_field(message: Message, state: FSMContext):
     test_labels = data.get("test_labels", [])
     test_idx = next((i for i, l in enumerate(test_labels) if l == message.text), None)
     if test_idx is None:
-        await message.answer("Тест не знайдено.")
+        await message.answer("❌ Тест не знайдено.")
         return
 
     await state.update_data(test_idx=test_idx)
     await state.set_state(AdminStates.choosing_marathon_test_field)
+
+    # Показуємо лише ті варіанти які існують в цьому тесті
+    lessons = load_lessons()
+    test_key = data["test_keys"][test_idx]
+    test_data = lessons[data["marathon_idx"]][f"week_{data['week_idx']}"][f"tesks_{data['marathon_lesson_idx']}"]["test"][test_key]
+    options_count = len(test_data.get("options", []))
+
+    available_fields = ["❓ Питання", "✅ Пояснення"]
+    option_labels = ["1️⃣ Варіант 1", "2️⃣ Варіант 2", "3️⃣ Варіант 3", "4️⃣ Варіант 4", "5️⃣ Варіант 5"]
+    for i in range(options_count):
+        available_fields.append(option_labels[i])
+
+    await state.update_data(available_test_fields=available_fields)
     await message.answer(
         "Що редагуємо в тесті?",
-        reply_markup=make_keyboard(list(MARATHON_TEST_FIELDS.keys()))
+        reply_markup=make_keyboard(available_fields)
     )
 
 @router.message(AdminStates.choosing_marathon_test_field)
 async def admin_marathon_test_field(message: Message, state: FSMContext):
     if message.text == "🔙 Назад":
-        # Повертаємось до вибору тесту
         data = await state.get_data()
         test_labels = data.get("test_labels", [])
         await state.set_state(AdminStates.choosing_marathon_test)
@@ -516,14 +576,24 @@ async def admin_marathon_test_field(message: Message, state: FSMContext):
 
     field_key = MARATHON_TEST_FIELDS.get(message.text)
     if not field_key:
-        await message.answer("Поле не знайдено.")
+        await message.answer("❌ Поле не знайдено.")
         return
 
     await state.update_data(edit_field=field_key, edit_context="test")
     data = await state.get_data()
     lessons = load_lessons()
     test_key = data["test_keys"][data["test_idx"]]
-    current = lessons[data["marathon_idx"]][f"week_{data['week_idx']}"][f"tesks_{data['marathon_lesson_idx']}"]["test"][test_key].get(field_key, "")
+    test_data = lessons[data["marathon_idx"]][f"week_{data['week_idx']}"][f"tesks_{data['marathon_lesson_idx']}"]["test"][test_key]
+
+    if field_key.startswith("option_"):
+        option_idx = int(field_key.split("_")[1])
+        options = test_data.get("options", [])
+        if option_idx >= len(options):
+            await message.answer("❌ Цього варіанту не існує в тесті.")
+            return
+        current = options[option_idx]
+    else:
+        current = test_data.get(field_key, "")
 
     await state.set_state(AdminStates.editing_marathon_value)
     await message.answer(
@@ -537,14 +607,10 @@ async def admin_save_marathon_value(message: Message, state: FSMContext):
         data = await state.get_data()
         edit_context = data.get("edit_context", "lesson")
         if edit_context == "test":
-            # Повертаємось до вибору поля тесту
+            available_fields = data.get("available_test_fields", list(MARATHON_TEST_FIELDS.keys()))
             await state.set_state(AdminStates.choosing_marathon_test_field)
-            await message.answer(
-                "Що редагуємо в тесті?",
-                reply_markup=make_keyboard(list(MARATHON_TEST_FIELDS.keys()))
-            )
+            await message.answer("Що редагуємо в тесті?", reply_markup=make_keyboard(available_fields))
         else:
-            # Повертаємось до вибору поля уроку
             fields = data.get("marathon_fields", list(MARATHON_LESSON_FIELDS.keys()))
             await state.set_state(AdminStates.choosing_marathon_field)
             await message.answer("Що редагуємо?", reply_markup=make_keyboard(fields))
@@ -558,20 +624,46 @@ async def admin_save_marathon_value(message: Message, state: FSMContext):
     field = data["edit_field"]
     edit_context = data.get("edit_context", "lesson")
 
+    # Валідація
+    if field in URL_FIELDS:
+        if new_value != "0" and not is_valid_url(new_value):
+            await message.answer(
+                "❌ Схоже це не посилання. Посилання повинно починатись з http:// або https://\n\nСпробуй ще раз:"
+            )
+            return
+    else:
+        if not is_valid_text(new_value):
+            await message.answer("❌ Текст занадто короткий. Введи мінімум 2 символи:\n\nСпробуй ще раз:")
+            return
+
     lessons = load_lessons()
     tesks = lessons[data["marathon_idx"]][f"week_{data['week_idx']}"][f"tesks_{data['marathon_lesson_idx']}"]
 
     if edit_context == "test":
         test_key = data["test_keys"][data["test_idx"]]
-        tesks["test"][test_key][field] = new_value
+        test_data = tesks["test"][test_key]
+        if field.startswith("option_"):
+            option_idx = int(field.split("_")[1])
+            test_data["options"][option_idx] = new_value
+        else:
+            test_data[field] = new_value
     else:
         tesks[field] = new_value
 
     save_lessons(lessons)
 
-    await message.answer(
-        f"✅ Збережено!\n\nПоле <b>{field}</b> оновлено.",
-        parse_mode="HTML",
-        reply_markup=make_keyboard(["🏃 Ще раз редагувати марафони", "📚 Перейти до курсів", "❌ Вийти з адміна"], add_back=False)
-    )
-    await state.set_state(AdminStates.choosing_content_type)
+    # Повертаємось на один крок назад
+    if edit_context == "test":
+        available_fields = data.get("available_test_fields", list(MARATHON_TEST_FIELDS.keys()))
+        await state.set_state(AdminStates.choosing_marathon_test_field)
+        await message.answer(
+            "✅ Збережено! Що ще редагуємо в тесті?",
+            reply_markup=make_keyboard(available_fields)
+        )
+    else:
+        fields = data.get("marathon_fields", list(MARATHON_LESSON_FIELDS.keys()))
+        await state.set_state(AdminStates.choosing_marathon_field)
+        await message.answer(
+            "✅ Збережено! Що ще редагуємо?",
+            reply_markup=make_keyboard(fields)
+        )
