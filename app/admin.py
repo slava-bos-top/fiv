@@ -11,7 +11,7 @@ from app import storage_json
 
 router = Router()
 
-ADMIN_IDS = [769775046, 928741410]
+ADMIN_IDS = [Config.ADMIN_ID_1, Config.ADMIN_ID_2]
 
 class AdminStates(StatesGroup):
     choosing_content_type = State()
