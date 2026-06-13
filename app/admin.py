@@ -189,7 +189,6 @@ async def admin_course_lesson_handler(message: Message, state: FSMContext):
     options = ["Назва заняття"]
     for i in range(amount):
         options.append(f"Частина {i+1}")
-    options.append("Фінальне завдання (task)")
 
     await state.update_data(course_amount=amount)
     await state.set_state(AdminStates.choosing_course_field)
@@ -213,18 +212,6 @@ async def admin_course_field_selected(message: Message, state: FSMContext):
         await state.update_data(edit_field="text", edit_part=None)
         curs = load_curs()
         current = curs[data["course_idx"]][f"tesks_{data['lesson_idx']}"]["text"]
-        await state.set_state(AdminStates.editing_course_value)
-        await message.answer(
-            f"Поточне значення:\n\n{current}\n\nВведіть нове значення:",
-            reply_markup=make_keyboard(["🔙 Назад", "❌ Вийти з адміна"], add_back=False),
-            parse_mode="HTML"
-        )
-        return
-
-    if message.text == "Фінальне завдання (task)":
-        await state.update_data(edit_field="task", edit_part=None)
-        curs = load_curs()
-        current = curs[data["course_idx"]][f"tesks_{data['lesson_idx']}"].get("task", "")
         await state.set_state(AdminStates.editing_course_value)
         await message.answer(
             f"Поточне значення:\n\n{current}\n\nВведіть нове значення:",
@@ -260,7 +247,6 @@ async def admin_course_part_field(message: Message, state: FSMContext):
         options = ["Назва заняття"]
         for i in range(amount):
             options.append(f"🎬 Частина {i+1}")
-        options.append("Фінальне завдання (task)")
         await state.set_state(AdminStates.choosing_course_field)
         await message.answer("Що редагуємо?", reply_markup=make_keyboard(options))
         return
@@ -306,7 +292,6 @@ async def admin_save_course_value(message: Message, state: FSMContext):
             options = ["Назва заняття"]
             for i in range(amount):
                 options.append(f"Частина {i+1}")
-            options.append("Фінальне завдання (task)")
             await state.set_state(AdminStates.choosing_course_field)
             await message.answer("Що редагуємо?", reply_markup=make_keyboard(options))
         return
@@ -352,7 +337,6 @@ async def admin_save_course_value(message: Message, state: FSMContext):
         options = ["Назва заняття"]
         for i in range(amount):
             options.append(f"Частина {i+1}")
-        options.append("Фінальне завдання (task)")
         await state.set_state(AdminStates.choosing_course_field)
         await message.answer(
             "Збережено! Що ще редагуємо?",
