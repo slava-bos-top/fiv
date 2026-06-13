@@ -6,7 +6,8 @@ import os
 
 class Config:
     BOT_TOKEN: str
-    ADMIN_ID: int
+    ADMIN_ID_1: int
+    ADMIN_ID_2: int
     DEBUG: bool
     FIRST_DATE: str
     GOOGLE_CREDENTIALS: str
@@ -29,7 +30,8 @@ class Config:
         if not cls.BOT_TOKEN:
             raise ValueError("❌ BOT_TOKEN is missing!")
 
-        cls.ADMIN_ID = int(os.getenv("ADMIN_ID", 0))
+        cls.ADMIN_ID_1 = int(os.getenv("ADMIN_ID_1", 0))
+        cls.ADMIN_ID_2 = int(os.getenv("ADMIN_ID_2", 0))
         cls.DEBUG = os.getenv("DEBUG", "False") == "True"
         cls.FIRST_DATE = os.getenv("FIRST_DATE", "")
         cls.REDIS_URL = os.getenv("REDIS_URL")
