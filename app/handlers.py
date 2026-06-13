@@ -32,7 +32,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from app.storage import user_phone_map
 
 
-import main as app_main
+from app import storage_json
 # with open("lessons.json", "r", encoding="utf-8") as f:
 #     LESSONS = json.load(f)
 
@@ -2284,7 +2284,7 @@ async def LessonMAR(message: Message, state: FSMContext):
     data = await state.get_data()
     num = data.get("num", [])
 
-    lesson = app_main.LESSONS[int(num[0])]
+    lesson = storage_json.LESSONS[int(num[0])]
     week = lesson[f"week_{int(num[1])}"]
     tesks = week[f"tesks_{int(num[2])}"]
     image = FSInputFile(tesks["image"])
@@ -2535,7 +2535,7 @@ async def LessonCurs(message: Message, state: FSMContext):
     await state.update_data(indexC=indexC)
     data = await state.get_data()
     Cursnum = data.get("Cursnum", [])
-    lesson = app_main.CURS[int(Cursnum[0])]
+    lesson = storage_json.CURS[int(Cursnum[0])]
     tesks = lesson[f"tesks_{int(Cursnum[1])}"]
     t = tesks["text"]
 
@@ -2593,7 +2593,7 @@ async def LessonpartCurs(message: Message, state: FSMContext):
 
     data = await state.get_data()
     Cursnum = data.get("Cursnum", [])
-    lesson = app_main.CURS[int(Cursnum[0])]
+    lesson = storage_json.CURS[int(Cursnum[0])]
     # week = lesson[f"week_{int(num[1])}"]
     tesks = lesson[f"tesks_{int(Cursnum[1])}"]
     data = await state.get_data()
@@ -2725,7 +2725,7 @@ async def LessonpartCurs(message: Message, state: FSMContext):
 
 
 def textV(i, j, k):
-    lesson = app_main.CURS[i]
+    lesson = storage_json.CURS[i]
     tesks = lesson[f"tesks_{j}"]
 
     textVideo = tesks[f"textVideo{k}"]
