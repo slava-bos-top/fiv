@@ -25,8 +25,7 @@ dp = Dispatcher(storage=storage)
 from app.handlers import router as user_router
 from app.admin import router as admin_router
 
-LESSONS = []
-CURS = []
+from app import storage_json
 
 async def load_users_from_sheet():
     scope = [
@@ -55,10 +54,9 @@ async def load_users_from_sheet():
     print(f"✅ Завантажено {len(user_phone_map)} користувачів з таблиці")
 
 async def load_json_from_drive():
-    global LESSONS, CURS
     print("📥 Завантаження JSON з Google Drive...")
-    LESSONS = download_json(Config.LESSONS_JSON_FILE_ID)
-    CURS = download_json(Config.CURS_JSON_FILE_ID)
+    storage_json.LESSONS = download_json(Config.LESSONS_JSON_FILE_ID)
+    storage_json.CURS = download_json(Config.CURS_JSON_FILE_ID)
     print("✅ JSON завантажено з Drive")
 
 
