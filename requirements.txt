@@ -11,4 +11,3 @@ cloudinary
 matplotlib
 aiogram-sqlite-storage
 redis
-google-api-python-client
