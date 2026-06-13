@@ -10,6 +10,7 @@ from aiogram_sqlite_storage.sqlitestore import SQLStorage
 # storage = SQLStorage("fsm_db.db", serializing_method="json")
 from redis.asyncio import Redis
 from aiogram.fsm.storage.redis import RedisStorage
+from app.drive_storage import download_json
 import gspread
 import json
 from oauth2client.service_account import ServiceAccountCredentials
@@ -23,6 +24,9 @@ dp = Dispatcher(storage=storage)
 
 from app.handlers import router as user_router
 from app.admin import router as admin_router
+
+LESSONS = []
+CURS = []
 
 async def load_users_from_sheet():
     scope = [
@@ -50,11 +54,19 @@ async def load_users_from_sheet():
 
     print(f"✅ Завантажено {len(user_phone_map)} користувачів з таблиці")
 
+async def load_json_from_drive():
+    global LESSONS, CURS
+    print("📥 Завантаження JSON з Google Drive...")
+    LESSONS = download_json(Config.LESSONS_JSON_FILE_ID)
+    CURS = download_json(Config.CURS_JSON_FILE_ID)
+    print("✅ JSON завантажено з Drive")
+
 
 async def main():
     dp.include_router(admin_router)
     dp.include_router(user_router)
     await load_users_from_sheet()
+    await load_json_from_drive()
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
