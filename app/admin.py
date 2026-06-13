@@ -108,13 +108,6 @@ async def admin_start(message: Message, state: FSMContext):
         await message.answer("У Вас немає доступу до адмін панелі.")
         return
     await state.set_state(AdminStates.choosing_content_type)
-    await message.answer(
-        "👋 Вітаю в адмін панелі!\nЩо хочете редагувати?",
-        reply_markup=make_keyboard(
-            ["Курси", "Марафони"],
-            add_back=False
-        )
-    )
     # Додаємо кнопку виходу окремим рядком
     kb = ReplyKeyboardMarkup(
         keyboard=[
