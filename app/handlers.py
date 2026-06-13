@@ -2594,11 +2594,27 @@ async def LessonpartCurs(message: Message, state: FSMContext):
     dzPart = data.get("dzPart", [])
     if f"task{k}" in tesks:
         dzPart = tesks[f"task{k}"]
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text="Настав час закріпити знання! Натисни кнопку, щоб отримати домашнє завдання 📚",
-            reply_markup=keyboard,
-        )
+        if tesks["End"] == "2":
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text="Настав час закріпити знання! Натисни кнопку, щоб отримати домашнє завдання 📚",
+                reply_markup=keyboard,
+            )
+        else:
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text=f"Отримати завдання", callback_data="dzCC"
+                        )
+                    ]
+                ]
+            )
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text="Натисни кнопку, щоб отримати завдання для самоперевірки 📚",
+                reply_markup=keyboard,
+            )
     else:
         dzPart = "0"
     await state.update_data(dzPart=dzPart)
