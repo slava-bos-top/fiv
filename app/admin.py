@@ -6,6 +6,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeybo
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from config import Config
+
+from app.drive_storage import download_json, upload_json
+import main as app_main
  
 router = Router()
  
@@ -34,21 +37,19 @@ class AdminStates(StatesGroup):
 def is_admin(user_id: int) -> bool:
     return user_id in ADMIN_IDS
  
-def load_curs():
-    with open("curs.json", "r", encoding="utf-8") as f:
-        return json.load(f)
- 
-def save_curs(data):
-    with open("curs.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
- 
-def load_lessons():
-    with open("lessons.json", "r", encoding="utf-8") as f:
-        return json.load(f)
- 
-def save_lessons(data):
-    with open("lessons.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+def load_curs() -> list:
+    return download_json(Config.CURS_JSON_FILE_ID)
+
+def save_curs(data: list):
+    upload_json(Config.CURS_JSON_FILE_ID, data)
+    app_main.CURS = data  # ← оновлюємо в пам'яті щоб бот одразу бачив зміни
+
+def load_lessons() -> list:
+    return download_json(Config.LESSONS_JSON_FILE_ID)
+
+def save_lessons(data: list):
+    upload_json(Config.LESSONS_JSON_FILE_ID, data)
+    app_main.LESSONS = data
  
 def make_keyboard(buttons: list, add_back=True) -> ReplyKeyboardMarkup:
     kb = [[KeyboardButton(text=b)] for b in buttons]
