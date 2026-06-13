@@ -1726,7 +1726,7 @@ def generate_all_button_lists(LESSONS, CURS) -> dict:
             if key.startswith("tesks_"):
                 text = course[key].get("text", key)
                 clean = text.replace("<b>", "").replace("</b>", "")
-                tasks.append(f"Заняття {lesson_num}. {clean[:50]}")
+                tasks.append(f"{clean[:50]}")
                 lesson_num += 1
         tasks.append("Повернутися до курсів")
         result[f"task{course_idx}"] = tasks
@@ -1769,7 +1769,7 @@ def generate_all_button_lists(LESSONS, CURS) -> dict:
             if wkey.startswith("tesks_"):
                 text = week[wkey].get("text", wkey)
                 clean = text.replace("<b>", "").replace("</b>", "")
-                lessons_list.append(f"Урок {lesson_num}. {clean[:50]}")
+                lessons_list.append(f"{clean[:50]}")
                 lesson_num += 1
         back = back_buttons.get(key_names.get((prefix, m_idx), ""), "Повернутися до тижнів")
         lessons_list.append(back)
