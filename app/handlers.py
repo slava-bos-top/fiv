@@ -1126,13 +1126,15 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
         inf = data.get(leson_list_name, [])
 
         if "✅" in inf[Cursles[1]]:
-            # leson_list[les[2]] = f"{leson_list[les[2]]}"
             await callback.message.answer("Це завдання вже було пройдено!")
         else:
-            # leson_list[les[2]] = f"{leson_list[les[2]]} ✅"
-            # row_values[25 + list_for_exsel_lesson[les[0]][les[1]] + les[2]] = 1
-
-            # sheet.update(f"A{row_index}", [row_values])
+            # Зберігаємо галочку в Google Sheets
+            col_index = 109 + Cursles[0] * 10 + Cursles[1]
+            # Розширюємо рядок якщо потрібно
+            while len(row_values) <= col_index:
+                row_values.append(0)
+            row_values[col_index] = 1
+            sheet.update(f"A{row_index}", [row_values])
 
             data = await state.get_data()
             l = data.get(leson_list_name, [])
