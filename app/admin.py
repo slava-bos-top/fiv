@@ -89,6 +89,7 @@ MARATHON_TEST_FIELDS = {
     "Варіант 3": "option_2",
     "Варіант 4": "option_3",
     "Варіант 5": "option_4",
+    "Правильна відповідь": "correct_index",
 }
 
 URL_FIELDS = [
@@ -581,6 +582,19 @@ async def admin_marathon_test_field(message: Message, state: FSMContext):
             await message.answer("Цього варіанту не існує в тесті.")
             return
         current = options[option_idx]
+    elif field_key == "correct_index":
+        current_idx = test_data.get("correct_index", 0)
+        options = test_data.get("options", [])
+        hint = f"Зараз правильна: {current_idx} = \"{options[current_idx]}\"\n\n"
+        hint += "Введіть номер правильного варіанту:\n"
+        for i, opt in enumerate(options):
+            hint += f"{i} = {opt}\n"
+        await state.set_state(AdminStates.editing_marathon_value)
+        await message.answer(
+            hint,
+            reply_markup=make_keyboard(["🔙 Назад", "❌ Вийти з адміна"], add_back=False),
+        )
+        return
     else:
         current = test_data.get(field_key, "")
 
@@ -614,15 +628,32 @@ async def admin_save_marathon_value(message: Message, state: FSMContext):
     edit_context = data.get("edit_context", "lesson")
 
     # Валідація
-    if field in URL_FIELDS:
+    if field == "correct_index":
+        try:
+            new_value = int(new_value)
+            lessons = load_lessons()
+            test_key = data["test_keys"][data["test_idx"]]
+            test_data = lessons[data["marathon_idx"]][f"week_{data['week_idx']}"][f"tesks_{data['marathon_lesson_idx']}"]["test"][test_key]
+            options_count = len(test_data.get("options", []))
+            if new_value < 0 or new_value >= options_count:
+                await message.answer(
+                    f"Введіть число від 0 до {options_count - 1}. Спробуйте ще раз:"
+                )
+                return
+        except ValueError:
+            await message.answer(
+                "Треба ввести число. Наприклад: 0 = перший варіант, 1 = другий. Спробуйте ще раз:"
+            )
+            return
+    elif field in URL_FIELDS:
         if new_value != "0" and not is_valid_url(new_value):
             await message.answer(
-                "Схоже це не посилання. Посилання повинно починатись з http:// або https://\n\nСпробуйте ще раз:"
+                "Посилання повинно починатись з http:// або https://\n\nСпробуйте ще раз:"
             )
             return
     else:
-        if not is_valid_text(new_value):
-            await message.answer("Текст занадто короткий. Введіть мінімум 2 символи:\n\nСпробуйте ще раз:")
+        if not is_valid_text(str(new_value)):
+            await message.answer("Текст занадто короткий. Спробуйте ще раз:")
             return
 
     lessons = load_lessons()
