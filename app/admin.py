@@ -121,6 +121,18 @@ async def admin_start(message: Message, state: FSMContext):
         reply_markup=kb
     )
 
+@router.message(Command("reload"))
+async def admin_reload(message: Message):
+    if not is_admin(message.from_user.id):
+        await message.answer("Немає доступу.")
+        return
+    from app.drive_storage import download_json
+    from app import storage_json
+    from config import Config
+    storage_json.CURS = download_json(Config.CURS_JSON_FILE_ID)
+    storage_json.LESSONS = download_json(Config.LESSONS_JSON_FILE_ID)
+    await message.answer("✅ JSON перезавантажено з Drive!")
+
 # ===== Exit =====
 @router.message(F.text == "❌ Вийти з адміна", StateFilter("*"))
 async def admin_exit(message: Message, state: FSMContext):
