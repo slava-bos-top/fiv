@@ -314,11 +314,11 @@ async def dz(callback: CallbackQuery, state: FSMContext):
             await state.update_data(Cursends=0)
             textForEnds = "Готовий до наступного заняття? 🚀"
             textForEndstextForEndsInButton = "Наступне заняття"
-            await state.update_data(Cursnum=[])
+            # await state.update_data(Cursnum=[])
             text = "Крокуй далі, тисни кнопку 👇 Пройдене завдання отримає позначку ✅ (завдання зроблено)."
         elif dzC["End"] == "1":
             await state.update_data(Cursends=1)
-            await state.update_data(Cursnum=[])
+            # await state.update_data(Cursnum=[])
             data = await state.get_data()
             Cursway = data.get("Cursway", [])
             p = Cursway[0]
