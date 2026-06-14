@@ -545,6 +545,7 @@ async def admin_choose_test_field(message: Message, state: FSMContext):
     option_labels = ["Варіант 1", "Варіант 2", "Варіант 3", "Варіант 4", "Варіант 5"]
     for i in range(options_count):
         available_fields.append(option_labels[i])
+    available_fields.append("Правильна відповідь")
 
     await state.update_data(available_test_fields=available_fields)
     await message.answer(
