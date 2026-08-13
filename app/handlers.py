@@ -1074,9 +1074,15 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
         await callback.message.answer(text=text, reply_markup=lessonKeyboard)
     except ValueError as v:
         if "None is not in list" in str(v):
-            await callback.message.answer(
-                "Щоб зберігати свій прогрес зареєструйся на сайті (https://fivone.education/). Після реєстрації зможеш спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті або в боті.",
-            )
+            if FREE_ACCESS_MODE:
+                await message.answer(
+                    text="<b>Зараз йде доробка функції збереження прогресу. Ця функція буде доступна через декілька днів. Треба буде зареєструватись на сайт</b>",
+                    parse_mode="HTML"
+                )
+            else:
+                await callback.message.answer(
+                    "Щоб зберігати свій прогрес зареєструйся на сайті (https://fivone.education/). Після реєстрації зможеш спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті або в боті.",
+                )
 
 
 # Curs
@@ -1202,9 +1208,15 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
         await callback.message.answer(text=text, reply_markup=lessonKeyboard)
     except ValueError as v:
         if "None is not in list" in str(v):
-            await callback.message.answer(
-                "Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fivone.education/ (якщо ще не авторизувався - саме час це зробити😉).",
-            )
+            if FREE_ACCESS_MODE:
+                await message.answer(
+                    text="<b>Зараз йде доробка функції збереження прогресу. Ця функція буде доступна через декілька днів. Треба буде зареєструватись на сайт</b>",
+                    parse_mode="HTML"
+                )
+            else:
+                await callback.message.answer(
+                    "Cпостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fivone.education/ (якщо ще не авторизувався - саме час це зробити😉).",
+                )
 
 
 @router.callback_query(F.data == "comfirmsignIn")
@@ -1438,7 +1450,7 @@ async def about_us(message: Message, state: FSMContext):
 
     await bot.send_message(
         chat_id=message.chat.id,
-        text="🎓 <b>Привіт! Ми — команда FivOne!</b>\n\nВсі матеріали створені командою освітнього центру FivOne. Онлайн-школа припинила свою роботу у лютому 2022 року, але більшість розроблених марафонів та курсів ми зберегли тут та залишили в вільному доступі.<b>Команда освітнього центру:</b>\n\n<b>Каріна Семенко</b> - засновниця FivOne та методистка курсів та марафонів.\n<b>Людмила Булигіна</b> - лекторка курсу та марафону з ІТ.\n<b>Едуард Квашин</b> - ментор курсу з ІТ.\n<b>Ярина Мамчур</b> - лекторка курсу з фізики.\n<b>Владислав Дудін</b> - ментор курсу з фізики та автор марафону з фізики.\n<b>Марʼяна Боднар</b> - лекторка курсу та марафону з креативності.\n<b>Ірина Тищенко</b> - лекторка Новорічного марафону.\n\n<b>Розробники боту:</b>\nІлля Рибачик та Вʼячеслав Рибачик\n\n<b>Приємного навчання!</b> 🙌🤍",
+        text="🎓 <b>Привіт! Ми — команда FivOne!</b>\n\nВсі матеріали створені командою освітнього центру FivOne. Онлайн-школа припинила свою роботу у лютому 2022 року, але більшість розроблених марафонів та курсів ми зберегли тут та залишили в вільному доступі.<b>Команда освітнього центру:</b>\n\n<b>Каріна Семенко</b> - засновниця FivOne та методистка курсів та марафонів.\n<b>Людмила Булигіна</b> - лекторка курсу та марафону з ІТ.\n<b>Едуард Квашин</b> - ментор курсу з ІТ.\n<b>Ярина Мамчур</b> - лекторка курсу з фізики.\n<b>Владислав Дудін</b> - ментор курсу з фізики та автор марафону з фізики.\n<b>Марʼяна Боднар</b> - лекторка курсу та марафону з креативності.\n<b>Ірина Тищенко</b> - лекторка Новорічного марафону.\n\n<b>Розробники боту:</b>\nІлля Рибачик та Вячеслав Рибачик\n\n<b>Приємного навчання!</b> 🙌🤍",
         parse_mode="HTML",
     )
 
@@ -1722,10 +1734,17 @@ async def regular_start_handler(message: Message, state: FSMContext):
             ]
         ]
     )
-    await message.answer(
-        "Також спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fivone.education/statistics.",
-        reply_markup=keyboard,
-    )
+    if FREE_ACCESS_MODE:
+        await message.answer(
+            text="<b>Зараз йде доробка функції збереження прогресу. Ця функція буде доступна через декілька днів. Треба буде зареєструватись на сайт</b>",
+            parse_mode="HTML",
+            reply_markup=keyboard,
+        )
+    else:
+        await message.answer(
+            "Також спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті https://fivone.education/statistics.",
+            reply_markup=keyboard,
+        )
     await message.answer(
         "Вибери, де ти хочеш подивитися свій прогрес: у курсах чи марафонах.",
         reply_markup=kb.progress,
