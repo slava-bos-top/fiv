@@ -1074,15 +1074,15 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
         await callback.message.answer(text=text, reply_markup=lessonKeyboard)
     except ValueError as v:
         if "None is not in list" in str(v):
-            if FREE_ACCESS_MODE:
-                await message.answer(
-                    text="<b>Зараз йде доробка функції збереження прогресу. Ця функція буде доступна через декілька днів. Треба буде зареєструватись на сайт</b>",
-                    parse_mode="HTML"
-                )
-            else:
-                await callback.message.answer(
-                    "Щоб зберігати свій прогрес зареєструйся на сайті (https://fivone.education/). Після реєстрації зможеш спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті або в боті.",
-                )
+            # if FREE_ACCESS_MODE:
+            #     await message.answer(
+            #         text="<b>Зараз йде доробка функції збереження прогресу. Ця функція буде доступна через декілька днів. Треба буде зареєструватись на сайт</b>",
+            #         parse_mode="HTML"
+            #     )
+            # else:
+            await callback.message.answer(
+                "Щоб зберігати свій прогрес зареєструйся на сайті (https://fivone.education/). Після реєстрації зможеш спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті або в боті.",
+            )
 
 
 # Curs
@@ -1738,7 +1738,6 @@ async def regular_start_handler(message: Message, state: FSMContext):
         await message.answer(
             text="<b>Зараз йде доробка функції збереження прогресу. Ця функція буде доступна через декілька днів. Треба буде зареєструватись на сайт</b>",
             parse_mode="HTML",
-            reply_markup=keyboard,
         )
     else:
         await message.answer(
