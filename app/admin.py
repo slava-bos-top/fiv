@@ -8,6 +8,7 @@ from aiogram.fsm.state import StatesGroup, State
 from config import Config
 from app.drive_storage import download_json, upload_json
 from app import storage_json
+import asyncio
 
 router = Router()
 
@@ -688,3 +689,35 @@ async def admin_save_marathon_value(message: Message, state: FSMContext):
             "Збережено! Що ще редагуємо?",
             reply_markup=make_keyboard(fields)
         )
+
+@router.message(Command("notify_registration"))
+async def notify_free_access_users(message: Message):
+    if not is_admin(message.from_user.id):
+        await message.answer("Немає доступу.")
+        return
+    from main import bot, redis
+
+    user_ids = await redis.smembers("free_access_users")
+    if not user_ids:
+        await message.answer("Немає користувачів для розсилки.")
+        return
+
+    await message.answer(f"Починаю розсилку для {len(user_ids)} користувачів...")
+
+    sent = 0
+    failed = 0
+    for uid in user_ids:
+        try:
+            await bot.send_message(
+                chat_id=int(uid),
+                text="<b>Функція збереження прогресу доступна! 🎉</b>\n\nЩоб твій прогрес зберігався, зареєструйся на сайті: https://fivone.education/",
+                parse_mode="HTML",
+            )
+            sent += 1
+        except Exception:
+            failed += 1
+        await asyncio.sleep(0.05)  # щоб не впертися в ліміти Telegram
+
+    await redis.delete("free_access_users")  # очищаємо, щоб не дублювати наступного разу
+
+    await message.answer(f"✅ Розіслано: {sent}\n❌ Не вдалось (заблокували бота тощо): {failed}")
