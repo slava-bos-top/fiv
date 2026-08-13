@@ -50,6 +50,8 @@ from config import Config
 from io import BytesIO
 import matplotlib.pyplot as plt
 
+FREE_ACCESS_MODE = True
+
 
 class UserProgress(StatesGroup):
     allow = State()
@@ -1385,19 +1387,34 @@ async def register_city(message: Message, state: FSMContext):
 
 @router.message(Command("start"))
 async def regular_start_handler(message: Message, state: FSMContext):
-    from main import bot
+    from main import bot, redis
 
     await message.answer(
         "Привіт! Вітаємо тебе в боті FivOne. Тут зібрані курси та марафони, які створила команда спеціалістів і які допоможуть тобі опанувати нові знання легко, цікаво та весело!",
     )
+
     data = await state.get_data() or {}
-    if "allow" in data:
-        pass
+
+    if FREE_ACCESS_MODE:
+        # Форсуємо доступ на час недоступності сайту
+        await state.update_data(allow=[1])
+
+        # Запам'ятовуємо user_id у Redis — знадобиться, щоб потім
+        # розіслати саме цим людям прохання зареєструватись
+        await redis.sadd("free_access_users", message.from_user.id)
+
+        if not data.get("notified_free_access"):
+            await state.update_data(notified_free_access=True)
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text="<b>Зараз йде доробка функції збереження прогресу. Ця функція буде доступна через декілька днів. Треба буде зареєструватись на сайт</b>",
+                parse_mode="HTML",
+            )
     else:
-        await state.update_data(allow=[0])
+        if "allow" not in data:
+            await state.update_data(allow=[0])
 
     data = await state.get_data()
-
     allow = data.get("allow", [])
     if allow[0] == 1:
         await bot.set_my_commands(
@@ -1414,7 +1431,6 @@ async def regular_start_handler(message: Message, state: FSMContext):
         await message.answer(
             "Щоб отримати доступ до бота, треба зареєструватись на сайті (https://fivone.education/). Після реєстрації ти зможеш спостерігати за своїм прогресом в особистому профілі на сайті або в боті.",
         )
-
 
 @router.message(F.text == "Про нас")
 async def about_us(message: Message, state: FSMContext):
