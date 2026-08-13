@@ -920,7 +920,8 @@ async def dz(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "Done")
 async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer("Прогрес зберігається...")
+    if FREE_ACCESS_MODE == False:
+        await callback.message.answer("Прогрес зберігається...")
     data = await state.get_data()
     les = data.get("les", [])
 
@@ -1074,15 +1075,15 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
         await callback.message.answer(text=text, reply_markup=lessonKeyboard)
     except ValueError as v:
         if "None is not in list" in str(v):
-            # if FREE_ACCESS_MODE:
-            #     await message.answer(
-            #         text="<b>Зараз йде доробка функції збереження прогресу. Ця функція буде доступна через декілька днів. Треба буде зареєструватись на сайт</b>",
-            #         parse_mode="HTML"
-            #     )
-            # else:
-            await callback.message.answer(
-                "Щоб зберігати свій прогрес зареєструйся на сайті (https://fivone.education/). Після реєстрації зможеш спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті або в боті.",
-            )
+            if FREE_ACCESS_MODE:
+                await callback.message.answer(
+                    text="<b>Зараз йде доробка функції збереження прогресу. Ця функція буде доступна через декілька днів. Треба буде зареєструватись на сайт</b>",
+                    parse_mode="HTML"
+                )
+            else:
+                await callback.message.answer(
+                    "Щоб зберігати свій прогрес зареєструйся на сайті (https://fivone.education/). Після реєстрації зможеш спостерігати за своїм прогресом ти зможеш в особистому профілі на сайті або в боті.",
+                )
 
 
 # Curs
@@ -1090,7 +1091,8 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "CursDone")
 async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer("Прогрес зберігається...")
+    if FREE_ACCESS_MODE == False:
+        await callback.message.answer("Прогрес зберігається...")
     data = await state.get_data()
     Cursles = data.get("Cursles", [])
 
@@ -1209,7 +1211,7 @@ async def homework_done_callback(callback: CallbackQuery, state: FSMContext):
     except ValueError as v:
         if "None is not in list" in str(v):
             if FREE_ACCESS_MODE:
-                await message.answer(
+                await callback.message.answer(
                     text="<b>Зараз йде доробка функції збереження прогресу. Ця функція буде доступна через декілька днів. Треба буде зареєструватись на сайт</b>",
                     parse_mode="HTML"
                 )
