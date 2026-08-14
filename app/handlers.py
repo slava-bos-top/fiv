@@ -50,7 +50,7 @@ from config import Config
 from io import BytesIO
 import matplotlib.pyplot as plt
 
-FREE_ACCESS_MODE = True
+FREE_ACCESS_MODE = False
 
 
 class UserProgress(StatesGroup):
